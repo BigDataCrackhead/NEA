@@ -68,7 +68,7 @@ def createNewGroup(pygameWindow, instancedObj, l):
 def edit(w, obj, listy):
 	if obj.typ=="RD" or obj.typ=="TN":
 		pygame.display.set_caption('Road Menu')
-		obj=d.roadMenu(w, obj)
+		obj=d.roadMenu(w, obj, listy)
 
 	elif obj.typ=="TL":
 		if obj.inGroup():
@@ -79,7 +79,7 @@ def edit(w, obj, listy):
 
 	elif obj.typ=="4J" or obj.typ=="TJ":
 		pygame.display.set_caption('Junction Menu')
-		obj=d.junctionMenu(w, obj)
+		obj=d.junctionMenu(w, obj, listy)
 
 	return obj
 	""" pygame.display.set_caption('Edit Menu')

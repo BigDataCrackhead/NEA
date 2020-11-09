@@ -121,17 +121,53 @@ def groupLink(g, w, l):
                     if g.inDirections(currentItem):
                         if x>0 and x<100:
                             if y>600 and y<700:
-                                g.removeDirection(currentItem, 0)
+                                try:
+                                    g.removeDirection(currentItem, 0)
+                                except:
+                                    if currentItem in g.direction[1]:
+                                        g.removeDirection(currentItem, 1)
+                                    elif currentItem in g.direction[2]:
+                                        g.removeDirection(currentItem, 2)
+                                    elif currentItem in g.direction[3]:
+                                        g.removeDirection(currentItem, 3)
+                                    g.addDirection(currentItem, 0)
                                 currentItem=None
                             elif y>700 and y<800:
-                                g.removeDirection(currentItem, 1)
+                                try:
+                                    g.removeDirection(currentItem, 1)
+                                except:
+                                    if currentItem in g.direction[0]:
+                                        g.removeDirection(currentItem, 0)
+                                    elif currentItem in g.direction[2]:
+                                        g.removeDirection(currentItem, 2)
+                                    elif currentItem in g.direction[3]:
+                                        g.removeDirection(currentItem, 3)
+                                    g.addDirection(currentItem, 1)
                                 currentItem=None
                         elif x>100 and x<200:
                             if y>600 and y<700:
-                                g.removeDirection(currentItem, 2)
+                                try:
+                                    g.removeDirection(currentItem, 2)
+                                except:
+                                    if currentItem in g.direction[1]:
+                                        g.removeDirection(currentItem, 1)
+                                    elif currentItem in g.direction[0]:
+                                        g.removeDirection(currentItem, 0)
+                                    elif currentItem in g.direction[3]:
+                                        g.removeDirection(currentItem, 3)
+                                    g.addDirection(currentItem, 2)
                                 currentItem=None
                             elif y>700 and y<800:
-                                g.removeDirection(currentItem, 3) 
+                                try:
+                                    g.removeDirection(currentItem, 3)
+                                except:
+                                    if currentItem in g.direction[1]:
+                                        g.removeDirection(currentItem, 1)
+                                    elif currentItem in g.direction[2]:
+                                        g.removeDirection(currentItem, 2)
+                                    elif currentItem in g.direction[0]:
+                                        g.removeDirection(currentItem, 0)
+                                    g.addDirection(currentItem, 3)
                                 currentItem=None
                     else:
                         if x>0 and x<100:
@@ -441,7 +477,11 @@ def drawJunctionMenu(w, obj, x, y):
 
     w.fill(v.BACKGROUND)
 
-    h.highlighterEdit(w, x, y)
+    h.highlighterEdit(w, x, y, obj)
+
+    if obj.group:
+        drawText(w, obj.group.groupName, 100, 500, 25, v.BLUE)
+        pygame.draw.rect(w, v.BLUE, (40, 490, 120, 20), 2)
 
     drawText(w, "Return To Design Phase", 80, 20, 20, v.BLUE)
     pygame.draw.rect(w, v.BLUE, (0, 10, 160, 20), 2)
@@ -477,7 +517,7 @@ def drawJunctionMenu(w, obj, x, y):
     pygame.display.flip()
 
 
-def junctionMenu(w, inp):
+def junctionMenu(w, inp, itemList):
     tolerance = 8
     lastClick = False
     clock = pygame.time.Clock()
@@ -496,6 +536,10 @@ def junctionMenu(w, inp):
                 coord = 300
                 special = inp.getSpecial()
                 length = len(special)
+
+                if click.checkWithin(x, y, 40, 490, 120, 20):
+                    if inp.group:
+                        groupEdit(w, inp.group, itemList)
 
                 for prop in range(length):
                     if y > coord-tolerance and y < coord+tolerance:
@@ -562,7 +606,12 @@ def drawRoadMenu(w, obj, x, y):
 
     w.fill(v.BACKGROUND)
 
-    h.highlighterEdit(w, x, y)
+    h.highlighterEdit(w, x, y, obj)
+
+    if obj.group:
+        drawText(w, obj.group.groupName, 100, 500, 25, v.BLUE)
+        pygame.draw.rect(w, v.BLUE, (40, 490, 120, 20), 2)
+
 
     drawText(w, "Return To Design Phase", 80, 20, 20, v.BLUE)
     pygame.draw.rect(w, v.BLUE, (0, 10, 160, 20), 2)
@@ -593,7 +642,7 @@ def drawRoadMenu(w, obj, x, y):
     pygame.display.flip()
 
 
-def roadMenu(w, inp):
+def roadMenu(w, inp, itemList):
 
     lastClick = False
     temp = None
@@ -627,6 +676,9 @@ def roadMenu(w, inp):
                     inp.setSpecial(values)
                     clickCheck = True
 
+                elif click.checkWithin(x, y, 40, 490, 120, 20):
+                    if inp.group:
+                        groupEdit(w, inp.group, itemList)
                 elif click.checkWithin(x, y, 0, 10, 160, 20) or click.checkWithin(x, y, 550, 625, 100, 50):
                     return inp
 

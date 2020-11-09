@@ -82,7 +82,13 @@ def highlighterTime(win, x, y):
         if y>580 and y<620:
             pygame.draw.rect(win, OFFBLUE, (560, 580, 80, 40))
 
-def highlighterEdit(win, x, y):
+def highlighterEdit(win, x, y, obj):
+
+    if obj.group:
+        if x>40 and x<160:
+            if y>490 and y<510:
+                pygame.draw.rect(win, OFFBLUE, (40, 490, 120, 20))
+
     if x>0 and x<160:
         if y>10 and y<30:
             pygame.draw.rect(win, OFFBLUE, (0, 10, 160, 20))
