@@ -1,0 +1,28 @@
+roadList=list of road and junction objects
+groupList=list of groups of road/junction and traffic light objects
+endList=emptyList
+rateOfCars=the number of cars per in simulation minute
+time=the number of in simulation minutes per second
+
+CLASS Car:
+    METHOD constructor (currentRoad, route):
+        acceleration=0
+        velocity=currentRoad.speedLimit-3+RANDOMINT(0-6)
+        roadObject=currentRoad
+        distanceIntoRoadObject=0
+
+FUNCTION wait (timePeriod):
+    HALT program FOR timePeriod
+
+FOR object IN roadList:
+    IF LENGTH(object.connections) < 2:
+        endList.append(object)
+
+WHILE TRUE:
+    wait(1/time)
+    
+    newCars=rateOfCars*time
+    tempFraction=newCars%1
+
+#math.modf(x)
+#Return the fractional and integer parts of x. Both results carry the sign of x and are floats.
