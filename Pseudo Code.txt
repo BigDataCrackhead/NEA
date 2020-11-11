@@ -1,28 +1,67 @@
 roadList=list of road and junction objects
 groupList=list of groups of road/junction and traffic light objects
-endList=emptyList
-rateOfCars=the number of cars per in simulation minute
-time=the number of in simulation minutes per second
+endList=empty array
+rateOfCars=the number of cars per in simulation second
+time=the number of in simulation seconds per second
+tempFraction=int(0)
+carList=empty array
 
 CLASS Car:
-    METHOD constructor (currentRoad, route):
-        acceleration=0
-        velocity=currentRoad.speedLimit-3+RANDOMINT(0-6)
-        roadObject=currentRoad
-        distanceIntoRoadObject=0
+    METHOD constructor (self, currentRoad, route):
+        self.acceleration=0
+        self.velocity=currentRoad.speedLimit-3+RANDOMINT(0->6)
+        self.roadObject=currentRoad
+        self.roadIndex=0
+        self.distanceIntoRoadObject=0
 
-FUNCTION wait (timePeriod):
+    METHOD newFrame(self, time):
+        carList=self.roadObject.getCars()
+
+    METHOD newRoad(self):
+        self.roadObject.carList.REMOVE(self)
+        self.roadIndex+=1
+        self.roadObject=route[roadIndex]
+        self.roadObject.carList.APPEND(self)
+
+
+PROCEDURE wait (timePeriod):
     HALT program FOR timePeriod
+
+FUNCTION findRoute (entry, exit):
+    finalRoute=[]
+    finalRoute.APPEND(entry)
+    WHILE finalRoute[-1] != exit:
+        tempConns=finalRoute[-1].getConnections()
+        chosenConn=RANDOMINT(0->(LENGTH(tempConns)-1))
+        chosenConn=tempConns[chosenConn]
+        finalRoute.APPEND(chosenConn)
+
+    RETURN finalRoute
+
+
 
 FOR object IN roadList:
     IF LENGTH(object.connections) < 2:
-        endList.append(object)
+        endList.APPEND(object)
+        FOR direction IN object.geometry:
+            IF direction==True and object.hasNoConnections(direction):
+                object.end.APPEND(direction)
 
 WHILE TRUE:
     wait(1/time)
     
-    newCars=rateOfCars*time
+    newCars=(rateOfCars*time)+tempFraction
     tempFraction=newCars%1
+    newCars=TRUNCATE(newCars)
+
+    FOR (newCarNeeded=0; newCarNeeded<newCars; newCarNeeded+=1):
+        entryPoint=RANDOMINT(0->(LENGTH(endList)-1))
+        exitPoint=RANDOMINT(0->(LENGTH(endList)-1))
+        route=findRoute(endList[entryPoint], endList[exitPoint])
+
+        newCar=Car(endList[entryPoint], route)
+        endList[entryPoint].carList.APPEND(newCar.id)
+        carList.APPEND(newCar)
 
 #math.modf(x)
 #Return the fractional and integer parts of x. Both results carry the sign of x and are floats.
