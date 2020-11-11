@@ -14,7 +14,8 @@ CLASS Car:
         self.roadIndex=0
         self.distanceIntoRoadObject=0
 
-    METHOD newFrame(self, time):
+    METHOD tick (self, time):
+        
         carList=self.roadObject.getCars()
 
     METHOD newRoad(self):
@@ -48,7 +49,7 @@ FOR object IN roadList:
                 object.end.APPEND(direction)
 
 WHILE TRUE:
-    wait(1/time)
+    wait(1/60)
     
     newCars=(rateOfCars*time)+tempFraction
     tempFraction=newCars%1
@@ -62,6 +63,10 @@ WHILE TRUE:
         newCar=Car(endList[entryPoint], route)
         endList[entryPoint].carList.APPEND(newCar.id)
         carList.APPEND(newCar)
+        
+    timePassed=time/60
+    FOR car IN carList:
+        car.tick(timePassed)
 
 #math.modf(x)
 #Return the fractional and integer parts of x. Both results carry the sign of x and are floats.
