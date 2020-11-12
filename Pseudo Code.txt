@@ -8,6 +8,7 @@ carList=empty array
 
 CLASS Car:
     METHOD constructor (self, currentRoad, route):
+        self.carLength=(RANDOMINT(0->8)*0.1)+1.2
         self.acceleration=0
         self.velocity=currentRoad.speedLimit-3+RANDOMINT(0->6)
         self.roadObject=currentRoad
@@ -15,8 +16,13 @@ CLASS Car:
         self.distanceIntoRoadObject=0
 
     METHOD tick (self, time):
-        
+        #average car length roughly = 4.6m
         carList=self.roadObject.getCars()
+
+        FOR car IN carList:
+            IF car.distanceIntoRoadObject > self.distanceIntoRoadObject+1+(self.velocity/10):
+
+            ELIF car.distanceIntoRoadObject > self.distanceIntoRoadObject+1+(self.velocity/10):
 
     METHOD newRoad(self):
         self.roadObject.carList.REMOVE(self)
@@ -56,13 +62,16 @@ WHILE TRUE:
     newCars=TRUNCATE(newCars)
 
     FOR (newCarNeeded=0; newCarNeeded<newCars; newCarNeeded+=1):
-        entryPoint=RANDOMINT(0->(LENGTH(endList)-1))
-        exitPoint=RANDOMINT(0->(LENGTH(endList)-1))
-        route=findRoute(endList[entryPoint], endList[exitPoint])
+        FOR car IN carList:
 
-        newCar=Car(endList[entryPoint], route)
-        endList[entryPoint].carList.APPEND(newCar.id)
-        carList.APPEND(newCar)
+        entryPoint=RANDOMINT(0->(LENGTH(endList)-1))
+        IF car.roadObject != endList[entryPoint] or car.distanceIntoRoadObject != 0:
+            exitPoint=RANDOMINT(0->(LENGTH(endList)-1))
+            route=findRoute(endList[entryPoint], endList[exitPoint])
+
+            newCar=Car(endList[entryPoint], route)
+            endList[entryPoint].carList.APPEND(newCar.id)
+            carList.APPEND(newCar)
         
     timePassed=time/60
     FOR car IN carList:
