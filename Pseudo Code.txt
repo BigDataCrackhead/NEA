@@ -5,32 +5,48 @@ rateOfCars=the number of cars per in simulation second
 time=the number of in simulation seconds per second
 tempFraction=int(0)
 carList=empty array
+tracker=None
 
 CLASS Car:
     METHOD constructor (self, currentRoad, route):
+        self.route=route
         self.carLength=(RANDOMINT(0->8)*0.1)+1.2
         self.acceleration=0
         self.velocity=currentRoad.speedLimit-3+RANDOMINT(0->6)
         self.roadObject=currentRoad
         self.roadIndex=0
         self.distanceIntoRoadObject=0
+        self.following=False
+        self.follower=False
 
     METHOD tick (self, time):
         #average car length roughly = 4.6m
-        carList=self.roadObject.getCars()
+        IF self.following:
+            self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject+self.following.carLength))
 
-        FOR car IN carList:
-            IF car.distanceIntoRoadObject > self.distanceIntoRoadObject+1+(self.velocity/10):
+        else:
+            carList=self.roadObject.getCars()
 
-            ELIF car.distanceIntoRoadObject > self.distanceIntoRoadObject+1+(self.velocity/10):
+            FOR car IN carList:
+                IF car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2):
+                    car.follower=self
+                    self.following=car
+        
+        IF self.route[self.index+1].typ = "TL":
+            if self.route[self.index+1].getLights != "Green":
+                self.acceleration 
 
-    METHOD newRoad(self):
+        IF self.distanceIntoRoadObject >= self.roadObject.length:
+            self.newRoad()
+
+
+    METHOD newRoad (self):
         self.roadObject.carList.REMOVE(self)
         self.roadIndex+=1
         self.roadObject=route[roadIndex]
         self.roadObject.carList.APPEND(self)
-
-
+        self.distanceIntoRoadObject=0
+    
 PROCEDURE wait (timePeriod):
     HALT program FOR timePeriod
 
@@ -42,10 +58,7 @@ FUNCTION findRoute (entry, exit):
         chosenConn=RANDOMINT(0->(LENGTH(tempConns)-1))
         chosenConn=tempConns[chosenConn]
         finalRoute.APPEND(chosenConn)
-
     RETURN finalRoute
-
-
 
 FOR object IN roadList:
     IF LENGTH(object.connections) < 2:
@@ -63,8 +76,8 @@ WHILE TRUE:
 
     FOR (newCarNeeded=0; newCarNeeded<newCars; newCarNeeded+=1):
         FOR car IN carList:
-
         entryPoint=RANDOMINT(0->(LENGTH(endList)-1))
+
         IF car.roadObject != endList[entryPoint] or car.distanceIntoRoadObject != 0:
             exitPoint=RANDOMINT(0->(LENGTH(endList)-1))
             route=findRoute(endList[entryPoint], endList[exitPoint])
