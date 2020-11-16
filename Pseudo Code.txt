@@ -34,8 +34,8 @@ CLASS Car:
         
         IF self.route[self.index+1].typ = "TL":
             IF self.route[self.index+1].getLights(self.route) != "Green":
-                IF self.roadObject.length-self.distanceIntoRoadObject>20
-                self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject)
+                IF self.roadObject.length-self.distanceIntoRoadObject>20:
+                    self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject)
 
         IF self.distanceIntoRoadObject >= self.roadObject.length:
             self.newRoad()
