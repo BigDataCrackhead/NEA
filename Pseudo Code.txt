@@ -33,8 +33,9 @@ CLASS Car:
                     self.following=car
         
         IF self.route[self.index+1].typ = "TL":
-            if self.route[self.index+1].getLights != "Green":
-                self.acceleration 
+            IF self.route[self.index+1].getLights(self.route) != "Green":
+                IF self.roadObject.length-self.distanceIntoRoadObject>20
+                self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject)
 
         IF self.distanceIntoRoadObject >= self.roadObject.length:
             self.newRoad()
@@ -67,6 +68,8 @@ FOR object IN roadList:
             IF direction==True and object.hasNoConnections(direction):
                 object.end.APPEND(direction)
 
+timePassed=time/60
+
 WHILE TRUE:
     wait(1/60)
     
@@ -86,7 +89,6 @@ WHILE TRUE:
             endList[entryPoint].carList.APPEND(newCar.id)
             carList.APPEND(newCar)
         
-    timePassed=time/60
     FOR car IN carList:
         car.tick(timePassed)
 
