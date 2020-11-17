@@ -22,9 +22,12 @@ CLASS Car:
     METHOD tick (self, time):
         #average car length roughly = 4.6m
         IF self.following:
-            self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject+self.following.carLength))
+            IF self.distanceIntoRoadObject > self.following.distanceIntoRoadObject:
+                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject+self.roadObject.length - self.distanceIntoRoadObject + self.following.carLength))
+            ELSE:
+                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject+self.following.carLength))
 
-        else:
+        ELSE:
             carList=self.roadObject.getCars()
 
             FOR car IN carList:
@@ -39,7 +42,13 @@ CLASS Car:
 
         IF self.distanceIntoRoadObject >= self.roadObject.length:
             self.newRoad()
+            IF self.follower.route[roadIndex+1] != self.roadObject:
+                self.follower.following=False
+                self.follower=False
 
+        newVelocity = self.velocity + (self.acceleration * time)
+        distanceTravelled = ((self.velocity+newVelocity)/2) * time
+        self.velocity=newVelocity
 
     METHOD newRoad (self):
         self.roadObject.carList.REMOVE(self)
