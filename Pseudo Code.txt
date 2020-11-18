@@ -1,13 +1,13 @@
-roadList=list of road and junction objects
-groupList=list of groups of road/junction and traffic light objects
-endList=empty array
-rateOfCars=the number of cars per in simulation second
-time=the number of in simulation seconds per second
-tempFraction=int(0)
-carList=empty array
-tracker=None
+roadList=list of road and junction objects #So that you can navigate around the layout
+groupList=list of groups of road/junction and traffic light objects #So that you can keep all traffic lights coordinated and cars on junctions know what is happening
+endList=empty array #The list of all the roads that end on the edge of the layout
+rateOfCars=the number of cars per in simulation second #A constant value previously set by the user to indicate the number of new cars added to the system per second
+time=the number of in simulation seconds per real second #A constant set previously by the user such that the speed of a simulation can be controlled
+tempFraction=int(0) #A variable to keep track of left over cars that need to be added to the simulation
+carList=empty array #An array which will be used to keep track of all the cars added to the simulation
+frameRate=60 #A constant value to make sure the simulation stays running in sync. This is only changed depending on how much processing power the sim needs.
 
-CLASS Car:
+CLASS Car: 
     METHOD constructor (self, currentRoad, route):
         self.route=route
         self.carLength=(RANDOMINT(0->8)*0.1)+1.2
@@ -18,9 +18,46 @@ CLASS Car:
         self.distanceIntoRoadObject=0
         self.following=False
         self.follower=False
+        self.waiting=False
 
     METHOD tick (self, time):
         #average car length roughly = 4.6m
+        carList=self.roadObject.getCars()
+        IF self.velocity != 0:
+            self.waiting = False
+
+        geometry=["north", "east", "south", "west"]
+        IF self.roadObject,typ = "TJ" OR selr.roadObject.typ = "4J":
+            tempGroup = self.roadObject.group
+            FOR (index=0; index<4; index+=1):
+                FOR obj IN tempGroup.direction[index]:
+                    IF obj IN self.route:
+                        IF obj = self.route[self.roadIndex-1] OR obj = self.route[self.roadIndex-2]:
+                            comingFrom = index
+                        ELSE:
+                            goingTo = index
+            
+            
+            IF (comingFrom+1 = goingTo) OR (comingFrom+1 = 4 AND goingTo = 0):
+                IF self.velocity > 8:
+                    self.acceleration -= self.velocity * -0.5
+
+            ELIF (comingFrom+2 = goingTo) OR (comingFrom+2 = 4 AND goingTo = 0) OR (comingFrom+2 = 5 AND goingTo = 1):
+                IF self.velocity > 8:
+                    self.acceleration -= self.velocity * -0.5
+
+            ELSE:
+                FOR car IN carList:
+                    IF NOT car.waiting:
+                        IF car.route[car.roadIndex+1] = self.route[roadIndex+1]:
+                            IF car.route[car.roadIndex-1] != self.route[roadIndex-1]:
+                                IF self.velocity != 0:
+                                    self.acceleration = self.velocity * -0.5
+                                ELSE:
+                                    self.waiting = True
+                            
+
+
         IF self.following:
             IF self.distanceIntoRoadObject > self.following.distanceIntoRoadObject:
                 self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject+self.roadObject.length - self.distanceIntoRoadObject + self.following.carLength))
@@ -28,8 +65,6 @@ CLASS Car:
                 self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject+self.following.carLength))
 
         ELSE:
-            carList=self.roadObject.getCars()
-
             FOR car IN carList:
                 IF car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2):
                     car.follower=self
@@ -47,8 +82,15 @@ CLASS Car:
                 self.follower=False
 
         newVelocity = self.velocity + (self.acceleration * time)
+        IF newVelocity <= 0:
+            newVelocity = 0
         distanceTravelled = ((self.velocity+newVelocity)/2) * time
         self.velocity=newVelocity
+        self.distanceIntoRoadObject += distanceTravelled
+
+        IF self.velocity <= 1:
+            self.velocity = 0
+            self.waiting = True
 
     METHOD newRoad (self):
         self.roadObject.carList.REMOVE(self)
@@ -77,10 +119,10 @@ FOR object IN roadList:
             IF direction==True and object.hasNoConnections(direction):
                 object.end.APPEND(direction)
 
-timePassed=time/60
+timePassed=time/frameRate
 
 WHILE TRUE:
-    wait(1/60)
+    wait(1/frameRate)
     
     newCars=(rateOfCars*time)+tempFraction
     tempFraction=newCars%1
@@ -88,15 +130,15 @@ WHILE TRUE:
 
     FOR (newCarNeeded=0; newCarNeeded<newCars; newCarNeeded+=1):
         FOR car IN carList:
-        entryPoint=RANDOMINT(0->(LENGTH(endList)-1))
+            entryPoint=RANDOMINT(0->(LENGTH(endList)-1))
 
-        IF car.roadObject != endList[entryPoint] or car.distanceIntoRoadObject != 0:
-            exitPoint=RANDOMINT(0->(LENGTH(endList)-1))
-            route=findRoute(endList[entryPoint], endList[exitPoint])
+            IF car.roadObject != endList[entryPoint] or car.distanceIntoRoadObject != 0:
+                exitPoint=RANDOMINT(0->(LENGTH(endList)-1))
+                route=findRoute(endList[entryPoint], endList[exitPoint])
 
-            newCar=Car(endList[entryPoint], route)
-            endList[entryPoint].carList.APPEND(newCar.id)
-            carList.APPEND(newCar)
+                newCar=Car(endList[entryPoint], route)
+                endList[entryPoint].carList.APPEND(newCar.id)
+                carList.APPEND(newCar)
         
     FOR car IN carList:
         car.tick(timePassed)
