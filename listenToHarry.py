@@ -5,14 +5,12 @@ class Object(object):
     counter=0
     counterStorage=[]
     def __init__(self, x, y, width, height, img, typ):
-
         if Object.counterStorage:
             self.id=Object.counterStorage.pop()
-            print("Printing New ID:", self.id)
         else:
             self.id=Object.counter
-            print("Printing New ID:", self.id)
             Object.counter+=1
+        print("Printing New ID:", self.id)
 
         self.x=x
         self.y=y

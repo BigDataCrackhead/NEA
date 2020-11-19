@@ -6,9 +6,12 @@ time=the number of in simulation seconds per real second #A constant set previou
 tempFraction=int(0) #A variable to keep track of left over cars that need to be added to the simulation
 carList=empty array #An array which will be used to keep track of all the cars added to the simulation
 frameRate=60 #A constant value to make sure the simulation stays running in sync. This is only changed depending on how much processing power the sim needs.
+simulationLength=3600
 
-CLASS Car: 
-    METHOD constructor (self, currentRoad, route):
+CLASS Car: #The car class that contains all the cars added to the system
+    METHOD constructor (self, currentRoad, route): 
+        self.time=0
+        self.timeWaiting=0
         self.route=route
         self.carLength=(RANDOMINT(0->8)*0.1)+1.2
         self.acceleration=0
@@ -20,7 +23,7 @@ CLASS Car:
         self.follower=False
         self.waiting=False
 
-    METHOD tick (self, time):
+    METHOD tick (self, time, bigCarList):
         #average car length roughly = 4.6m
         carList=self.roadObject.getCars()
         IF self.velocity != 0:
@@ -75,11 +78,18 @@ CLASS Car:
                 IF self.roadObject.length-self.distanceIntoRoadObject>20:
                     self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject)
 
+        self.time += time
+        IF self.waiting:
+            self.timeWaiting += time
+
         IF self.distanceIntoRoadObject >= self.roadObject.length:
-            self.newRoad()
-            IF self.follower.route[roadIndex+1] != self.roadObject:
-                self.follower.following=False
-                self.follower=False
+            IF self.roadIndex+1 < LENGTH(self.route):
+                self.newRoad()
+                IF self.follower.route[roadIndex+1] != self.roadObject:
+                    self.follower.following=False
+                    self.follower=False
+            ELSE:
+                bigCarList = self.destroy(bigCarList)
 
         newVelocity = self.velocity + (self.acceleration * time)
         IF newVelocity <= 0:
@@ -87,10 +97,13 @@ CLASS Car:
         distanceTravelled = ((self.velocity+newVelocity)/2) * time
         self.velocity=newVelocity
         self.distanceIntoRoadObject += distanceTravelled
-
+        
         IF self.velocity <= 1:
             self.velocity = 0
             self.waiting = True
+
+        IF NOT self.roadObject:
+            RETURN bigCarList
 
     METHOD newRoad (self):
         self.roadObject.carList.REMOVE(self)
@@ -98,11 +111,29 @@ CLASS Car:
         self.roadObject=route[roadIndex]
         self.roadObject.carList.APPEND(self)
         self.distanceIntoRoadObject=0
+
+    METHOD destroy (self, bigCarList):
+        self.roadObject.carList.REMOVE(self)
+        bigCarList.REMOVE(self)
+        self.roadObject = NONE
+
+        timeTaken = self.time
+        timeWaiting = self.timeWaiting
+        lastRoad = self.route[-1]
+        lengthOfRoute = 0
+        FOR obj IN self.route:
+            lengthOfRoute.APPEND(obj.length)
+    
+        GLOBAL bigCarData.APPEND(timeTaken, lastRoad, lengthOfRoute, timeWaiting)
+
+        RETURN bigCarList
     
 PROCEDURE wait (timePeriod):
-    HALT program FOR timePeriod
+    realTimePassed = getTimePassed()
 
-FUNCTION findRoute (entry, exit):
+    HALT program FOR (timePeriod-realTimePassed)
+
+FUNCTION findRoute (entry, exit): #A function to find a new route
     finalRoute=[]
     finalRoute.APPEND(entry)
     WHILE finalRoute[-1] != exit:
@@ -119,29 +150,36 @@ FOR object IN roadList:
             IF direction==True and object.hasNoConnections(direction):
                 object.end.APPEND(direction)
 
-timePassed=time/frameRate
+timePassed=time/frameRate #The amount of system time that will pass per frame
 
-WHILE TRUE:
-    wait(1/frameRate)
+WHILE simulationLength > totalTimePassed: #While the simulation hasn't been running for it's time limit sets to true
+    wait(1/frameRate) #Makes sure the simulation isn't running faster than the framerate it should be
     
-    newCars=(rateOfCars*time)+tempFraction
-    tempFraction=newCars%1
-    newCars=TRUNCATE(newCars)
+    newCars=(rateOfCars*time)+tempFraction #Gets how many cars should be created this frame
+    tempFraction=newCars%1 #This usually won't be an integer so gets the fractional part and stores this for next frame
+    newCars=TRUNCATE(newCars) #After the fractional part is saved it turns it into the integer part
 
-    FOR (newCarNeeded=0; newCarNeeded<newCars; newCarNeeded+=1):
-        FOR car IN carList:
-            entryPoint=RANDOMINT(0->(LENGTH(endList)-1))
+    FOR (newCarNeeded=0; newCarNeeded<newCars; newCarNeeded+=1): #Loops the number of times a new car is needed
+        temp = 1 #Pushes into the while loop
+        WHILE temp: #Runs while the entry point is invalid
+            temp = 0 #Resets the temporary value so that finding the entry point is valid 
+            entryPoint=RANDOMINT(0->(LENGTH(endList)-1)) #Selects an index point for a random entrance to the sim
+            FOR car IN carList: #Loops through the current cars to see if they are obstructing new creations              
+                IF car.roadObject = endList[entryPoint] AND car.distanceIntoRoadObject > car.carLength: #Checks if car cannot be fit into the entry point
+                    temp = 1 #Makes sure you cannot escape the loop before you find a safe spot
 
-            IF car.roadObject != endList[entryPoint] or car.distanceIntoRoadObject != 0:
-                exitPoint=RANDOMINT(0->(LENGTH(endList)-1))
-                route=findRoute(endList[entryPoint], endList[exitPoint])
+        IF NOT temp: #If the entry point is clear 
+            exitPoint=RANDOMINT(0->(LENGTH(endList)-1)) #Picks an exit point
+            route=findRoute(endList[entryPoint], endList[exitPoint]) #Finds a route from the entry to the exit point
 
-                newCar=Car(endList[entryPoint], route)
-                endList[entryPoint].carList.APPEND(newCar.id)
-                carList.APPEND(newCar)
-        
+            newCar=Car(endList[entryPoint], route)
+            endList[entryPoint].carList.APPEND(newCar.id)
+            carList.APPEND(newCar)
+    
+    newCarList = carList
     FOR car IN carList:
-        car.tick(timePassed)
+        newCarList = car.tick(timePassed, newCarList)
+    carList = newCarList
 
 #math.modf(x)
 #Return the fractional and integer parts of x. Both results carry the sign of x and are floats.
