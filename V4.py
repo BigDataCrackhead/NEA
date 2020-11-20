@@ -8,6 +8,9 @@ import Pack as p
 import Edits as e
 import Variables as v
 
+#math.modf(x)
+#Return the fractional and integer parts of x. Both results carry the sign of x and are floats.
+#average car length roughly = 4.6m
 stop_threads=True#The global variable that tells the threads to stop
 pygame.display.init()
 pygame.font.init()

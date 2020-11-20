@@ -9,28 +9,37 @@ frameRate=60 #A constant value to make sure the simulation stays running in sync
 simulationLength=3600
 
 CLASS Car: #The car class that contains all the cars added to the system
-    METHOD constructor (self, currentRoad, route): 
-        self.time=0
-        self.timeWaiting=0
-        self.route=route
-        self.carLength=(RANDOMINT(0->8)*0.1)+1.2
-        self.acceleration=0
-        self.velocity=currentRoad.speedLimit-3+RANDOMINT(0->6)
-        self.roadObject=currentRoad
-        self.roadIndex=0
-        self.distanceIntoRoadObject=0
-        self.following=False
-        self.follower=False
-        self.waiting=False
+    METHOD constructor (self, currentRoad, route): #The method run when the class initialises
+        self.time=0 #The value to track how long the car has been in the simulation
+        self.timeWaiting=0 #The value that tracks how long the car has been waiting
+        self.route=route #The route the car will take 
+        self.carLength=(RANDOMINT(0->8)*0.1)+1.2 #The assigned length of the car
+        self.acceleration=0 #The current acceleration of the car
+        self.velocity=currentRoad.speedLimit-3+RANDOMINT(0->6) #The current velocity of the car
+        self.targetVelocity=self.velocity #The velocity the car is aiming to acheive
+        self.roadObject=currentRoad #The road object that the car currently belongs to
+        self.roadIndex=0 #The index of the road object with relation to self.route
+        self.distanceIntoRoadObject=0 #The distance into the road object that the car currently is
+        self.following=False #Whether or not the car is following another car
+        self.follower=False #Whether or not the car has a follower
+        self.waiting=False #Whether or not the car is waiting
 
-    METHOD tick (self, time, bigCarList):
-        #average car length roughly = 4.6m
-        carList=self.roadObject.getCars()
-        IF self.velocity != 0:
+    METHOD setTargetVelocity(self): #A method to set the target velocity for the car
+        self.targetVelocity = currentRoad.speedLimit-3+RANDOMINT(0->5) #Selects a target velocity based on a speed near to the actual speed limit
+
+    METHOD tick (self, time, bigCarList): #The method called every frame to keep cars moving correctly
+        carList=self.roadObject.getCars() #Defines the list of cars in the roadObject shared by itself
+        IF self.velocity != 0: #If the car is moving makes sure the system does not think it is waiting
             self.waiting = False
 
-        geometry=["north", "east", "south", "west"]
-        IF self.roadObject,typ = "TJ" OR selr.roadObject.typ = "4J":
+        IF self.roadObject.typ != "4J" AND self.roadObject.typ != "TJ": #Checks if itself is any type of object other than t-junction and 4-way junction
+            IF self.velocity < self.targetVelocity: #Checks if it is slower than it's target velocity
+                self.acceleration = 0.5 #Tells the car to speed up
+            ELIF self.velocity > self.targetVelocity: #Checks if it is faster than it's target velocity
+                self.acceleration = -0.5 #Tells it to slow down
+
+        geometry=["north", "east", "south", "west"] #Defines basic geometry variables 
+        IF self.roadObject,typ = "TJ" OR self.roadObject.typ = "4J": #Checks  
             tempGroup = self.roadObject.group
             FOR (index=0; index<4; index+=1):
                 FOR obj IN tempGroup.direction[index]:
@@ -69,7 +78,7 @@ CLASS Car: #The car class that contains all the cars added to the system
 
         ELSE:
             FOR car IN carList:
-                IF car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2):
+                IF car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2) AND car.follower = False:
                     car.follower=self
                     self.following=car
         
@@ -102,8 +111,7 @@ CLASS Car: #The car class that contains all the cars added to the system
             self.velocity = 0
             self.waiting = True
 
-        IF NOT self.roadObject:
-            RETURN bigCarList
+        RETURN bigCarList
 
     METHOD newRoad (self):
         self.roadObject.carList.REMOVE(self)
@@ -111,6 +119,7 @@ CLASS Car: #The car class that contains all the cars added to the system
         self.roadObject=route[roadIndex]
         self.roadObject.carList.APPEND(self)
         self.distanceIntoRoadObject=0
+        self.setTargetVelocity()
 
     METHOD destroy (self, bigCarList):
         self.roadObject.carList.REMOVE(self)
@@ -134,21 +143,33 @@ PROCEDURE wait (timePeriod):
     HALT program FOR (timePeriod-realTimePassed)
 
 FUNCTION findRoute (entry, exit): #A function to find a new route
-    finalRoute=[]
-    finalRoute.APPEND(entry)
-    WHILE finalRoute[-1] != exit:
-        tempConns=finalRoute[-1].getConnections()
-        chosenConn=RANDOMINT(0->(LENGTH(tempConns)-1))
-        chosenConn=tempConns[chosenConn]
-        finalRoute.APPEND(chosenConn)
-    RETURN finalRoute
+    finalRoute=[] #The empty array that the route will be added to
+    finalRoute.APPEND(entry) #The first part of the route will always be the start
+    WHILE finalRoute[-1] != exit: #While the last element of the array is not the end point
+        tempConns=finalRoute[-1].getConnections() #Find the connections of the last part of the road
+        chosenConn=RANDOMINT(0->(LENGTH(tempConns)-1)) #Picks a random index for the temporary connections
+        chosenConn=tempConns[chosenConn] #Selects the road associated with the index
+        finalRoute.APPEND(chosenConn) #Adds this road to the route
+    RETURN finalRoute #Returns the calculated route
 
-FOR object IN roadList:
-    IF LENGTH(object.connections) < 2:
-        endList.APPEND(object)
-        FOR direction IN object.geometry:
-            IF direction==True and object.hasNoConnections(direction):
-                object.end.APPEND(direction)
+PROCEDURE setEnds (object):
+    FOR direction IN object.getGeometry: #Loops through north, east, south and west
+        IF direction==True AND object.hasNoConnections(direction): #Checks if the direction is possible but unattached
+            object.end.APPEND(direction) #Adds this direction to the objects' end list
+
+FOR object IN roadList: #Runs once for every road object in the sim
+    IF LENGTH(object.connections) < 2 AND (object.typ = "TL" OR object.typ = "RD" OR object.typ = "TN"): #Runs if the object is either a traffic 
+#light or a road and has only one connection 
+        endList.APPEND(object) #Adds this object to the list of objects with an end
+        setEnds(object) #Makes sure the object knows which directions it has free
+
+    ELIF LENGTH(object.connections) < 3 AND (object.typ = "TJ"): #Runs if the object is a t-junction and has 2 or less connections
+        endList.APPEND(object) #Adds this object to the list of objects with an end
+        setEnds(object) #Makes sure the object knows which directions it has free
+    
+    ELIF LENGTH(object.connections) < 4 AND (object.typ = "4J"): #Runs if the object is a 4 way junction and has 3 or less connections
+        endList.APPEND(object) #Adds this object to the list of objects with an end
+        setEnds(object) #Makes sure the object knows which directions it has free
 
 timePassed=time/frameRate #The amount of system time that will pass per frame
 
@@ -172,14 +193,11 @@ WHILE simulationLength > totalTimePassed: #While the simulation hasn't been runn
             exitPoint=RANDOMINT(0->(LENGTH(endList)-1)) #Picks an exit point
             route=findRoute(endList[entryPoint], endList[exitPoint]) #Finds a route from the entry to the exit point
 
-            newCar=Car(endList[entryPoint], route)
-            endList[entryPoint].carList.APPEND(newCar.id)
-            carList.APPEND(newCar)
+            newCar=Car(endList[entryPoint], route) #Creates a car with the route provided
+            endList[entryPoint].carList.APPEND(newCar.id) #Adds this car to the roadObject
+            carList.APPEND(newCar) #Adds this car to the total car array
     
-    newCarList = carList
-    FOR car IN carList:
-        newCarList = car.tick(timePassed, newCarList)
-    carList = newCarList
-
-#math.modf(x)
-#Return the fractional and integer parts of x. Both results carry the sign of x and are floats.
+    newCarList = carList #A temporary variable is instanced to hold the altered car list
+    FOR car IN carList: #Loops through the cars in the sim
+        newCarList = car.tick(timePassed, newCarList) #Makes the sim tick one frame forward
+    carList = newCarList #Assigns the altered car list to the actual car list
