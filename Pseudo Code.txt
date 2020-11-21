@@ -6,7 +6,8 @@ time=the number of in simulation seconds per real second #A constant set previou
 tempFraction=int(0) #A variable to keep track of left over cars that need to be added to the simulation
 carList=empty array #An array which will be used to keep track of all the cars added to the simulation
 frameRate=60 #A constant value to make sure the simulation stays running in sync. This is only changed depending on how much processing power the sim needs.
-simulationLength=3600
+simulationLength=3600 #A constant value set by the user that dictates how long the sim will run for
+GLOBAL bigCarData=[] #An emtpy array to store the data gained from the sim
 
 CLASS Car: #The car class that contains all the cars added to the system
     METHOD constructor (self, currentRoad, route): #The method run when the class initialises
@@ -85,65 +86,68 @@ CLASS Car: #The car class that contains all the cars added to the system
                     car.follower=self #Set yourself as the car's follower
                     self.following=car #Set your following to the car
         
-        IF self.route[self.index+1].typ = "TL": 
-            IF self.route[self.index+1].getLights(self.route) != "Green":
-                IF self.roadObject.length-self.distanceIntoRoadObject>20:
-                    self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject)
+        IF self.route[self.index+1].typ = "TL": #If approaching a traffic light
+            IF self.route[self.index+1].getLights(self.route) != "Green": #And the traffic light is not green
+                IF self.roadObject.length-self.distanceIntoRoadObject>20: #And you are relatively close to the traffic light
+                    self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject) #Slow down
 
-        self.time += time
-        IF self.waiting:
-            self.timeWaiting += time
+        self.time += time #Tick time proportional to the value of one frame
+        IF self.waiting: #If car is waiting
+            self.timeWaiting += time #Add to the waiting timer
 
-        IF self.distanceIntoRoadObject >= self.roadObject.length:
-            IF self.roadIndex+1 < LENGTH(self.route):
-                self.newRoad()
-                IF self.follower.route[roadIndex+1] != self.roadObject:
-                    self.follower.following=False
-                    self.follower=False
-            ELSE:
-                bigCarList = self.destroy(bigCarList)
+        IF self.distanceIntoRoadObject >= self.roadObject.length: #If you have surpassed the length of the road
+            IF self.roadIndex+1 < LENGTH(self.route): #If car is moving to another road
+                self.newRoad() #Calls procedure for a new road
+                IF self.follower.route[roadIndex+1] != self.roadObject: #Checks whether your follower is also following you
+                    self.follower.following=False #Removes the follower's following attribute
+                    self.follower=False #Removes the follower attribute
+            ELSE: #If the car has finished it's route
+                bigCarList = self.destroy(bigCarList) #Destroys itself
 
-        newVelocity = self.velocity + (self.acceleration * time)
-        IF newVelocity <= 0:
-            newVelocity = 0
-        distanceTravelled = ((self.velocity+newVelocity)/2) * time
-        self.velocity=newVelocity
-        self.distanceIntoRoadObject += distanceTravelled
+        newVelocity = self.velocity + (self.acceleration * time) #Sets the new velocity as an approximation of what the acceleration will have done to the car
+        IF newVelocity <= 0: #If the acceleration leads to negative velocity negate it
+            newVelocity = 0 
+        distanceTravelled = ((self.velocity+newVelocity)/2) * time #Integrating would take up wayyyyyy too much processing power so I did an approximation
+        self.velocity = newVelocity #Sets the new velocity
+        self.distanceIntoRoadObject += distanceTravelled #Moves the car forward
         
-        IF self.velocity <= 1:
-            self.velocity = 0
-            self.waiting = True
+        IF self.velocity <= 1: #To avoid cars taking infinitely long to slow down
+            self.velocity = 0 #Sets the velocity to zero if it is less than one
+            self.waiting = True #Waiting is set to True
 
-        RETURN bigCarList
+        RETURN bigCarList #Returns the updated car list
 
-    METHOD newRoad (self):
-        self.roadObject.carList.REMOVE(self)
-        self.roadIndex+=1
-        self.roadObject=route[roadIndex]
-        self.roadObject.carList.APPEND(self)
-        self.distanceIntoRoadObject=0
-        self.setTargetVelocity()
+    METHOD newRoad (self): #The method for moving a car along its route
+        self.roadObject.carList.REMOVE(self) #Remove the car from its previous road
+        self.roadIndex+=1 #Change it's index value
+        self.roadObject=route[roadIndex] #Assigns a new road object
+        self.roadObject.carList.APPEND(self) #Adds the car to that road object
+        self.distanceIntoRoadObject=0 #Sets the distance into the road object to 0
+        self.setTargetVelocity() #Sets the target velocity for the car to travel at
 
-    METHOD destroy (self, bigCarList):
-        self.roadObject.carList.REMOVE(self)
-        bigCarList.REMOVE(self)
-        self.roadObject = NONE
+    METHOD destroy (self, bigCarList): #The method that destroys the car
+        self.roadObject.carList.REMOVE(self) #Removes the car from its road object
+        bigCarList.REMOVE(self) #Removes the car from the overall car list
+        self.roadObject = NONE #Sets the cars road object to nonetype
 
-        timeTaken = self.time
-        timeWaiting = self.timeWaiting
-        lastRoad = self.route[-1]
-        lengthOfRoute = 0
-        FOR obj IN self.route:
-            lengthOfRoute.APPEND(obj.length)
+        timeTaken = self.time #Stores the time the car is active
+        timeWaiting = self.timeWaiting #Stores the time the car spent waiting
+        lastRoad = self.route[-1] #Stores where the car finished
+        lengthOfRoute = 0 #Sets a variable to store the length of the route
+        FOR obj IN self.route: #Loops through the roads the car has been on
+            lengthOfRoute.APPEND(obj.length) #Adds the length of each of the roads to the length of route variable
     
-        GLOBAL bigCarData.APPEND(timeTaken, lastRoad, lengthOfRoute, timeWaiting)
+        GLOBAL bigCarData.APPEND(timeTaken, lastRoad, lengthOfRoute, timeWaiting) #Updates the global variable bigCarData with the data of the car
 
-        RETURN bigCarList
+        RETURN bigCarList #Returns the new car list
     
-PROCEDURE wait (timePeriod):
-    realTimePassed = getTimePassed()
+PROCEDURE wait (timePeriod): #The procedure that keeps the time of the system working
+    realTimePassed = getTimePassed() #Gets the time that has passed since the last calling of this procedure
 
-    HALT program FOR (timePeriod-realTimePassed)
+    IF realTimePassed > timePeriod: #If the system cannot keep up with the demand
+        ERROR "Clock Error" #It errors out
+
+    HALT program FOR (timePeriod-realTimePassed) #Stops the program for the amount of time left before it needs to continue its loop
 
 FUNCTION findRoute (entry, exit): #A function to find a new route
     finalRoute=[] #The empty array that the route will be added to
