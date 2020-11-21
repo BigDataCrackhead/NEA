@@ -39,50 +39,53 @@ CLASS Car: #The car class that contains all the cars added to the system
                 self.acceleration = -0.5 #Tells it to slow down
 
         geometry=["north", "east", "south", "west"] #Defines basic geometry variables 
-        IF self.roadObject,typ = "TJ" OR self.roadObject.typ = "4J": #Checks  
-            tempGroup = self.roadObject.group
-            FOR (index=0; index<4; index+=1):
-                FOR obj IN tempGroup.direction[index]:
-                    IF obj IN self.route:
-                        IF obj = self.route[self.roadIndex-1] OR obj = self.route[self.roadIndex-2]:
-                            comingFrom = index
+        IF self.roadObject.typ = "TJ" OR self.roadObject.typ = "4J": #Checks if the road the object is on is a t-junction or a 4 way junction
+            tempGroup = self.roadObject.group #Creates a temporary group variable that holds the group of the junction
+            FOR (index=0; index<4; index+=1): #Loops through four times
+                FOR obj IN tempGroup.direction[index]: #Loops through the objects in the directions of the group
+                    IF obj IN self.route: #If one of these objects is in the route runs
+                        IF obj = self.route[self.roadIndex-1] OR obj = self.route[self.roadIndex-2]: #If this object is either the previous object the car was on or the object the car was on before that runs
+                            comingFrom = index #This means it must have been coming from this direction
                         ELSE:
-                            goingTo = index
+                            goingTo = index #Otherwise it must be going to this direction
             
-            
-            IF (comingFrom+1 = goingTo) OR (comingFrom+1 = 4 AND goingTo = 0):
-                IF self.velocity > 8:
-                    self.acceleration -= self.velocity * -0.5
+            IF (comingFrom+1 = goingTo) OR (comingFrom+1 = 4 AND goingTo = 0): #If the car is turning left
+                IF self.velocity > 8: #And the velocity is greater than 8
+                    self.acceleration -= self.velocity * -0.5 #Slow down
 
-            ELIF (comingFrom+2 = goingTo) OR (comingFrom+2 = 4 AND goingTo = 0) OR (comingFrom+2 = 5 AND goingTo = 1):
-                IF self.velocity > 8:
-                    self.acceleration -= self.velocity * -0.5
+            ELIF (comingFrom+2 = goingTo) OR (comingFrom+2 = 4 AND goingTo = 0) OR (comingFrom+2 = 5 AND goingTo = 1): #If the car is going straight ahead
+                IF self.velocity > 8: #And the velocity is greater than 8
+                    self.acceleration -= self.velocity * -0.5 #Slow Down
 
-            ELSE:
-                FOR car IN carList:
-                    IF NOT car.waiting:
-                        IF car.route[car.roadIndex+1] = self.route[roadIndex+1]:
-                            IF car.route[car.roadIndex-1] != self.route[roadIndex-1]:
-                                IF self.velocity != 0:
-                                    self.acceleration = self.velocity * -0.5
-                                ELSE:
-                                    self.waiting = True
+            ELSE: #Otherwise
+                FOR car IN carList: #Loop through the car list
+                    IF car.route[car.roadIndex-1] != self.route[roadIndex-1]: #If the car came from anywhere but where you came from
+                        IF NOT car.waiting: #If that car is not waiting
+                            IF car.route[car.roadIndex+1] = self.route[roadIndex+1]: #If that car has the same destination
+                                IF self.velocity != 0: #And the velocity is not 0
+                                    self.acceleration = self.velocity * -0.5 #Slow down
+                    
+                    ELSE: #If the car came from the same direction
+                        IF car.waiting: #And the car is waiting
+                            IF car.distanceIntoRoadObject > self.distanceIntoRoadObject: #And it is ahead 
+                                IF self.velocity != 0: #And you are moving
+                                    self.acceleration = self.velocity * -0.5 #Slow down
                             
 
 
-        IF self.following:
-            IF self.distanceIntoRoadObject > self.following.distanceIntoRoadObject:
-                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject+self.roadObject.length - self.distanceIntoRoadObject + self.following.carLength))
-            ELSE:
-                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject+self.following.carLength))
+        IF self.following: #If you are following a car
+            IF self.distanceIntoRoadObject > self.following.distanceIntoRoadObject: #Runs if the car is in a new road object
+                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject+self.roadObject.length - self.distanceIntoRoadObject + self.following.carLength)) #Calculates what the new acceleration of the car should be
+            ELSE: #If both cars are on the same road object
+                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject+self.following.carLength)) #Calculates the new acceleration of the car
 
-        ELSE:
-            FOR car IN carList:
-                IF car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2) AND car.follower = False:
-                    car.follower=self
-                    self.following=car
+        ELSE: #If you are not following a car
+            FOR car IN carList: #Loops through the cars in the roadObject
+                IF car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2) AND car.follower = False AND self.roadObject.typ != "TJ" AND self.roadObject.typ != "4J" AND car.route[car.roadIndex-1] = self.route[self.roadIndex-1]: #If the car is suitably close, you are not on a junction, both came from the same road and the car does not have a follower already
+                    car.follower=self #Set yourself as the car's follower
+                    self.following=car #Set your following to the car
         
-        IF self.route[self.index+1].typ = "TL":
+        IF self.route[self.index+1].typ = "TL": 
             IF self.route[self.index+1].getLights(self.route) != "Green":
                 IF self.roadObject.length-self.distanceIntoRoadObject>20:
                     self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject)
