@@ -18,7 +18,7 @@ def GUI(win, clock):
 		clock.tick(60)
 		x, y = pygame.mouse.get_pos()
 
-		d.drawGUI()
+		d.drawGUI(win)
 
 		pygame.display.flip()
 
