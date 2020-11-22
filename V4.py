@@ -50,10 +50,10 @@ def main(w, clock):
             else:
                 if x>1050 and x<1190:#Run GUI or MRS
                     if y>740 and y<770:
-                        s.MRS(w)
+                        s.MRS(w, clock)
                         break
                     elif y>680 and y<710:
-                        s.GUI(w)
+                        s.GUI(w, clock)
                         break
 
                 if not lastClick:

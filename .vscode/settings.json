@@ -1,8 +1,4 @@
 {
-<<<<<<< HEAD
     "python.pythonPath": "C:\\Users\\olivr\\AppData\\Local\\Programs\\Python\\Python38\\python.exe",
-=======
-    "python.pythonPath": "C:\\Stuff\\Downloads\\python.exe",
->>>>>>> 5a2726a5d723a81402f54483ab50d58b8b213af4
     "python.linting.enabled": false
 }
