@@ -28,6 +28,7 @@ class Object(object):
         if self.carList:
             return self.carList
         else:
+            return None
 
 
     def setGroup(self, group):
