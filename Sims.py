@@ -1,7 +1,7 @@
 import pygame
 
-def GUI():
+def GUI(win):
 	pass
 
-def MRS():
+def MRS(win):
 	pass
