@@ -8,6 +8,9 @@ pygame.font.init()
 WIDTH=1200
 HEIGHT=800
 FRAMERATE=60
+SIMLENGTH=120
+BIGCARDATA=[]
+RATEOFCARS=1
 
 w = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -15,10 +18,16 @@ c=pygame.time.Clock()
 
 itemList, time, groupList=p.unpack(1)
 
-def GUI(win, clock, bigListy, timePassed, groupList, frameRate):
+if not time:
+	time=1
+
+def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength, rate):
 	pygame.display.set_caption('GUI Simulation')
 	totalTimePassed=0
-	
+	endList=[]
+	tempFraction=0
+	carList
+
 	while simulationLength>totalTimePassed:
 		clock.tick(frameRate)
 		x, y = pygame.mouse.get_pos()
@@ -37,4 +46,4 @@ def MRS(win):
 	pass
 
 
-GUI(w, c, itemList, float(time/FRAMERATE), groupList, FRAMERATE)
+GUI(w, c, itemList, float(time/FRAMERATE), groupList, FRAMERATE, SIMLENGTH, RATEOFCARS)

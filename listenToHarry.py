@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, random
 import Variables as v
 
 class Object(object):
@@ -23,6 +23,12 @@ class Object(object):
         self.conns=[]
         self.group=None
         self.defineGeometry()
+
+    def getCars(self):
+        if self.carList:
+            return self.carList
+        else:
+
 
     def setGroup(self, group):
         self.group=group
@@ -414,4 +420,134 @@ class Group():
     def removeMember(self, groupMember):
         self.groupMembers.remove(groupMember)
 
+class Car():
+    def __init__(self, currentRoad, route):
+        self.time=0
+        self.timeWaiting=0 
+        self.route=route 
+        self.carLength=(random.randint(0, 8)*0.1)+1.2 
+        self.acceleration=0 
+        self.velocity=currentRoad.speedLimit-3+(random.randint(0, 5)) 
+        self.targetVelocity=self.velocity 
+        self.roadObject=currentRoad 
+        self.roadIndex=0 
+        self.distanceIntoRoadObject=0 
+        self.following=False 
+        self.follower=False 
+        self.waiting=False   
     
+    def setTargetVelocity(self):
+        self.targetVelocity = currentRoad.speedLimit-3+(random.randint(0, 5))
+
+    def tick(self, time, bigCarList): 
+        carList=self.roadObject.getCars() 
+        if self.velocity != 0: 
+            self.waiting = False
+
+        if self.roadObject.typ != "4J" and self.roadObject.typ != "TJ": 
+            if self.velocity < self.targetVelocity: 
+                self.acceleration = 0.5 
+            else self.velocity > self.targetVelocity: 
+                self.acceleration = -0.5 
+
+        #geometry=["north", "east", "south", "west"] 
+        if self.roadObject.typ == "TJ" or self.roadObject.typ == "4J": 
+            tempGroup = self.roadObject.group 
+            for index in range(4): 
+                for obj in tempGroup.direction[index]: 
+                    if obj in self.route: 
+                        if obj = self.route[self.roadIndex-1] or obj = self.route[self.roadIndex-2]: 
+                            comingFrom = index 
+                        else:
+                            goingTo = index 
+            
+            if (comingFrom+1 == goingTo) or (comingFrom+1 == 4 and goingTo == 0): 
+                if self.velocity > 8:
+                    self.acceleration -= self.velocity * -0.5 
+
+            else (comingFrom+2 == goingTo) or (comingFrom+2 = 4 and goingTo == 0) or (comingFrom+2 == 5 and goingTo == 1): 
+                if self.velocity > 8: 
+                    self.acceleration -= self.velocity * -0.5 
+
+            else: 
+                for car in carList: 
+                    if car.route[car.roadIndex-1] != self.route[roadIndex-1]: 
+                        if not car.waiting: 
+                            if car.route[car.roadIndex+1] == self.route[roadIndex+1]: 
+                                if self.velocity != 0: 
+                                    self.acceleration = self.velocity * -0.5 
+                    
+                    else: 
+                        if car.waiting: 
+                            if car.distanceIntoRoadObject > self.distanceIntoRoadObject:
+                                if self.velocity != 0: 
+                                    self.acceleration = self.velocity * -0.5 
+                            
+
+
+        if self.following: 
+            if self.distanceIntoRoadObject > self.following.distanceIntoRoadObject: 
+                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject+self.roadObject.length - self.distanceIntoRoadObject + self.following.carLength)) 
+            else: 
+                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject+self.following.carLength)) 
+
+        else:
+            for car in carList: 
+                if car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2) and car.follower == False and self.roadObject.typ != "TJ" and self.roadObject.typ != "4J" and car.route[car.roadIndex-1] == self.route[self.roadIndex-1]: 
+                    car.follower=self
+                    self.following=car 
+        
+        if self.route[self.index+1].typ == "TL": 
+            if self.route[self.index+1].getLights(self.route) != "Green":
+                if self.roadObject.length-self.distanceIntoRoadObject>20: 
+                    self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject))
+
+        self.time += time 
+        if self.waiting: 
+            self.timeWaiting += time 
+
+        if self.distanceIntoRoadObject >= self.roadObject.length: 
+            if self.roadIndex+1 < LENGTH(self.route): 
+                self.newRoad() 
+                if self.follower.route[roadIndex+1] != self.roadObject: 
+                    self.follower.following=False 
+                    self.follower=False 
+            else: 
+                bigCarList = self.destroy(bigCarList) 
+
+        newVelocity = self.velocity + (self.acceleration * time) 
+        if newVelocity <= 0: 
+            newVelocity = 0 
+        distanceTravelled = ((self.velocity+newVelocity)/2) * time 
+        self.velocity = newVelocity 
+        self.distanceIntoRoadObject += distanceTravelled 
+        
+        if self.velocity <= 1:
+            self.velocity = 0
+            self.waiting = True 
+
+        return bigCarList 
+
+    def newRoad(self): 
+        self.roadObject.carList.remove(self) 
+        self.roadIndex+=1 
+        self.roadObject=route[roadIndex] 
+        self.roadObject.carList.append(self)
+        self.distanceIntoRoadObject=0 
+        self.setTargetVelocity() 
+
+    def destroy(self, bigCarList): 
+        self.roadObject.carList.remove(self)
+        bigCarList.remove(self) 
+        self.roadObject = None 
+
+        timeTaken = self.time 
+        timeWaiting = self.timeWaiting 
+        lastRoad = self.route[-1] 
+        lengthOfRoute = 0 
+        for obj in self.route: 
+            lengthOfRoute.append(obj.length) 
+    
+        global bigCarData.append(timeTaken, lastRoad, lengthOfRoute, timeWaiting) 
+
+        return bigCarList 
