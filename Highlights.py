@@ -3,7 +3,7 @@ import Variables as v
 
 OFFBLUE=pygame.Color("#88CCCC")
 
-def highlightGUI(w, x, y):
+def highlighterGUI(w, x, y):
     if x>0 and x<160:
         if y>10 and y<30:
             pygame.draw.rect(w, OFFBLUE, (0, 10, 160, 20))

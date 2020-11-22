@@ -11,10 +11,17 @@ from pynput import keyboard
 
 globalKey = None
 
-def drawGUI(w, x, y):
-    win.fill(v.BACKGROUND)
+def drawGUI(w, x, y, l):
+    w.fill(v.BACKGROUND)
 
     h.highlighterGUI(w, x, y)
+
+    drawText(w, "Return To Design Phase", 80, 20, 20, v.BLUE)
+    pygame.draw.rect(w, v.BLUE, (0, 10, 160, 20), 2)
+
+    for obj in l:
+        obj.draw(w)
+
 
 def groupEdit(w, g, l):
     pygame.display.set_caption('Group Edit: {}'.format(g.groupName))
