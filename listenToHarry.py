@@ -24,6 +24,9 @@ class Object(object):
         self.group=None
         self.defineGeometry()
 
+    def getConns(self):
+        return self.conns
+
     def getCars(self):
         if self.carList:
             return self.carList
@@ -508,7 +511,7 @@ class Car():
             self.timeWaiting += time 
 
         if self.distanceIntoRoadObject >= self.roadObject.length: 
-            if self.roadIndex+1 < LENGTH(self.route): 
+            if self.roadIndex+1 < len(self.route): 
                 self.newRoad() 
                 if self.follower.route[roadIndex+1] != self.roadObject: 
                     self.follower.following=False 
