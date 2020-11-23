@@ -22,7 +22,27 @@ class Object(object):
         self.entities=None
         self.conns=[]
         self.group=None
+        self.end=[]
         self.defineGeometry()
+
+    def hasNoConnections(self, direction, itemList):
+        temp=0
+        for connID in self.conns:
+            for obj in itemList:
+                if obj.id == connID:
+                    conn=obj
+            tempGeo=conn.getGeometry()
+            for side in tempGeo:
+                if type(side[0]) == int:
+                    if (side[0] == direction[0]) and (self.y+(self.height/2) == (direction[1][0]+direction[1][1])/2):
+                        temp=1
+                else:
+                    if (side[1] == direction[1]) and (self.x+(self.width/2) == (direction[0][0]+direction[0][1])/2):
+                        temp=1
+
+        if temp:
+            return False
+        return True
 
     def getConns(self):
         return self.conns
@@ -32,7 +52,6 @@ class Object(object):
             return self.carList
         else:
             return None
-
 
     def setGroup(self, group):
         self.group=group
@@ -451,7 +470,7 @@ class Car():
         if self.roadObject.typ != "4J" and self.roadObject.typ != "TJ": 
             if self.velocity < self.targetVelocity: 
                 self.acceleration = 0.5 
-            else self.velocity > self.targetVelocity: 
+            elif self.velocity > self.targetVelocity: 
                 self.acceleration = -0.5 
 
         #geometry=["north", "east", "south", "west"] 
@@ -460,7 +479,7 @@ class Car():
             for index in range(4): 
                 for obj in tempGroup.direction[index]: 
                     if obj in self.route: 
-                        if obj = self.route[self.roadIndex-1] or obj = self.route[self.roadIndex-2]: 
+                        if obj == self.route[self.roadIndex-1] or obj == self.route[self.roadIndex-2]: 
                             comingFrom = index 
                         else:
                             goingTo = index 
@@ -469,7 +488,7 @@ class Car():
                 if self.velocity > 8:
                     self.acceleration -= self.velocity * -0.5 
 
-            else (comingFrom+2 == goingTo) or (comingFrom+2 = 4 and goingTo == 0) or (comingFrom+2 == 5 and goingTo == 1): 
+            elif (comingFrom+2 == goingTo) or (comingFrom+2 == 4 and goingTo == 0) or (comingFrom+2 == 5 and goingTo == 1): 
                 if self.velocity > 8: 
                     self.acceleration -= self.velocity * -0.5 
 
@@ -552,6 +571,7 @@ class Car():
         for obj in self.route: 
             lengthOfRoute.append(obj.length) 
     
-        global bigCarData.append(timeTaken, lastRoad, lengthOfRoute, timeWaiting) 
+        global bigCarData
+        bigCarData.append(timeTaken, lastRoad, lengthOfRoute, timeWaiting) 
 
         return bigCarList 
