@@ -17,39 +17,43 @@ w = pygame.display.set_mode((WIDTH, HEIGHT))
 
 c=pygame.time.Clock()
 
-itemList, time, groupList=p.unpack(1)
+roadList, time, groupList=p.unpack(1)
 
 if not time:
 	time=1
 
-def findRoute(entry, ext):
+def findRoute(entry, ext, itemList):
 	finalRoute=[] 
-    finalRoute.append(entry) 
-    while finalRoute[-1] != ext:
-        tempConns=finalRoute[-1].getConns() 
-        chosenConn=random.randint(0, (len(tempConns)-1))
+	tempRoute=[]
+	tempRoute.append(entry) 
+	for obj in itemList
+	while tempRoute[-1] != ext:
+		tempConns=finalRoute[-1].getConns() 
+		chosenConn=random.randint(0, (len(tempConns)-1))
 		if tempConns[chosenConn] != finalRoute[-1]:
-        	chosenConn=tempConns[chosenConn] 
-        	finalRoute.append(chosenConn) 
-    return finalRoute 
+			chosenConn=tempConns[chosenConn] 
+			finalRoute.append(chosenConn) 
+	return finalRoute 
 
-def setEnds (object):
-    for direction in object.getGeometry: 
-        in direction==True and object.hasNoConnections(direction): 
-            object.end.append(direction)
+def setEnds(obj, listy):
+	geometry=obj.getGeometry()
+	print(geometry)
+	for direction in geometry: 
+		if obj.hasNoConnections(direction, listy): 
+			obj.end.append(direction)
 
-for object in roadList: 
-    in len(object.connections) < 2 and (object.typ == "TL" or object.typ == "RD" or object.typ = "TN"): 
-        endList.append(object) 
-        setEnds(object) 
+for obj in roadList: 
+    if len(obj.conns) < 2 and (obj.typ == "TL" or obj.typ == "RD" or obj.typ == "TN"): 
+        endList.append(obj) 
+        setEnds(obj, roadList) 
 
-    elif len(object.connections) < 3 and (object.typ == "TJ"): 
-        endList.append(object) 
-        setEnds(object) 
+    elif len(obj.conns) < 3 and (obj.typ == "TJ"): 
+        endList.append(obj) 
+        setEnds(obj, roadList) 
     
-    elif len(object.connections) < 4 and (object.typ == "4J"): 
-        endList.append(object) 
-        setEnds(object)
+    elif len(obj.conns) < 4 and (obj.typ == "4J"): 
+        endList.append(obj) 
+        setEnds(obj, roadList)
 
 def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength, rate, endList):
 	pygame.display.set_caption('GUI Simulation')
@@ -61,7 +65,7 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 		clock.tick(frameRate)
 		x, y = pygame.mouse.get_pos()
 
-		newCars=(rateOfCars*time)+tempFraction
+		newCars=(rate*time)+tempFraction
 		tempFraction=newCars%1
 		newCars=math.trunc(newCars)
 
@@ -76,7 +80,7 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 
 			if not temp: 
 				exitPoint=random.randint(0, (len(endList)-1)) 
-				route=findRoute(endList[entryPoint], endList[exitPoint]) 
+				route=findRoute(endList[entryPoint], endList[exitPoint], bigListy) 
 
 				newCar=Car(endList[entryPoint], route) 
 				endList[entryPoint].carList.append(newCar.id) 
@@ -101,4 +105,4 @@ def MRS(win):
 	pass
 
 
-GUI(w, c, itemList, float(time/FRAMERATE), groupList, FRAMERATE, SIMLENGTH, RATEOFCARS, endList)
+GUI(w, c, roadList, float(time/FRAMERATE), groupList, FRAMERATE, SIMLENGTH, RATEOFCARS, endList)
