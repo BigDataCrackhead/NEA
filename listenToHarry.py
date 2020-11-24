@@ -452,6 +452,7 @@ class Group():
         self.groupMembers.remove(groupMember)
 
 class Car():
+    bigCarData=[]
     def __init__(self, currentRoad, route):
         self.time=0
         self.timeWaiting=0 
@@ -484,35 +485,36 @@ class Car():
         #geometry=["north", "east", "south", "west"] 
         if self.roadObject.typ == "TJ" or self.roadObject.typ == "4J": 
             tempGroup = self.roadObject.group 
-            for index in range(4): 
-                for obj in tempGroup.direction[index]: 
-                    if obj in self.route: 
-                        if obj == self.route[self.roadIndex-1] or obj == self.route[self.roadIndex-2]: 
-                            comingFrom = index 
-                        else:
-                            goingTo = index 
-            
-            if (comingFrom+1 == goingTo) or (comingFrom+1 == 4 and goingTo == 0): 
-                if self.velocity > 8:
-                    self.acceleration -= self.velocity * -0.5 
+            if tempGroup:
+                for index in range(4): 
+                    for obj in tempGroup.direction[index]: 
+                        if obj in self.route: 
+                            if obj == self.route[self.roadIndex-1] or obj == self.route[self.roadIndex-2]: 
+                                comingFrom = index 
+                            else:
+                                goingTo = index 
+                
+                if (comingFrom+1 == goingTo) or (comingFrom+1 == 4 and goingTo == 0): 
+                    if self.velocity > 8:
+                        self.acceleration -= self.velocity * -0.5 
 
-            elif (comingFrom+2 == goingTo) or (comingFrom+2 == 4 and goingTo == 0) or (comingFrom+2 == 5 and goingTo == 1): 
-                if self.velocity > 8: 
-                    self.acceleration -= self.velocity * -0.5 
+                elif (comingFrom+2 == goingTo) or (comingFrom+2 == 4 and goingTo == 0) or (comingFrom+2 == 5 and goingTo == 1): 
+                    if self.velocity > 8: 
+                        self.acceleration -= self.velocity * -0.5 
 
-            else: 
-                for car in carList: 
-                    if car.route[car.roadIndex-1] != self.route[roadIndex-1]: 
-                        if not car.waiting: 
-                            if car.route[car.roadIndex+1] == self.route[roadIndex+1]: 
-                                if self.velocity != 0: 
-                                    self.acceleration = self.velocity * -0.5 
-                    
-                    else: 
-                        if car.waiting: 
-                            if car.distanceIntoRoadObject > self.distanceIntoRoadObject:
-                                if self.velocity != 0: 
-                                    self.acceleration = self.velocity * -0.5 
+                else: 
+                    for car in carList: 
+                        if car.route[car.roadIndex-1] != self.route[self.roadIndex-1]: 
+                            if not car.waiting: 
+                                if car.route[car.roadIndex+1] == self.route[roadIndex+1]: 
+                                    if self.velocity != 0: 
+                                        self.acceleration = self.velocity * -0.5 
+                        
+                        else: 
+                            if car.waiting: 
+                                if car.distanceIntoRoadObject > self.distanceIntoRoadObject:
+                                    if self.velocity != 0: 
+                                        self.acceleration = self.velocity * -0.5 
                             
 
 
@@ -544,7 +546,7 @@ class Car():
             if self.roadIndex+1 < len(self.route): 
                 self.newRoad() 
                 if self.follower:
-                    if self.follower.route[roadIndex+1] != self.roadObject: 
+                    if self.follower.route[self.roadIndex+1] != self.roadObject: 
                         self.follower.following=False 
                         self.follower=False 
             else: 
@@ -583,7 +585,6 @@ class Car():
         for obj in self.route: 
             lengthOfRoute += obj.length 
     
-        global bigCarData
-        bigCarData.append(timeTaken, lastRoad, lengthOfRoute, timeWaiting) 
+        Car.bigCarData.append([timeTaken, lastRoad, lengthOfRoute, timeWaiting]) 
 
         return bigCarList 

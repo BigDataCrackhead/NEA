@@ -8,7 +8,7 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "Sims.py",
+            "program": "V4.py",
             "console": "integratedTerminal"
         }
     ]

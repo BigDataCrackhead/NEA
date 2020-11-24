@@ -1,6 +1,7 @@
 import pygame, random, math
 import Draw as d
 import Pack as p
+import Variables as v
 import listenToHarry as classy
 
 pygame.display.init()
@@ -8,9 +9,8 @@ pygame.font.init()
 
 WIDTH=1200
 HEIGHT=800
-FRAMERATE=10
+FRAMERATE=30
 SIMLENGTH=120
-BIGCARDATA=[]
 RATEOFCARS=0.5
 endList=[]
 
@@ -91,22 +91,21 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 
 			if not temp: 
 				exitPoint=random.randint(0, (len(endList)-1)) 
-				print("Finding Route For Car")
 				route=findRoute(endList[entryPoint], endList[exitPoint], bigListy) 
 
 				newCar=classy.Car(endList[entryPoint], route) 
 				endList[entryPoint].carList.append(newCar) 
 				carList.append(newCar)
 
+		totalTimePassed+=timePassed
 		newCarList = carList 
 		for car in carList: 
-			print("Ticking Frame")
 			newCarList = car.tick(timePassed, newCarList) 
 		carList = newCarList
 
-		print("Drawing GUI")
 		d.drawGUI(win, x, y, bigListy)
 		
+		d.drawText(win, str(len(carList)), 700, 50, 20, v.BLUE)
 		for event in pygame.event.get():
 			if event.type==pygame.QUIT:
 				print("Goodbye!")
