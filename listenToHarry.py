@@ -23,6 +23,8 @@ class Object(object):
         self.conns=[]
         self.group=None
         self.end=[]
+        self.speedLimit=30
+        self.carList=[]
         self.defineGeometry()
 
     def hasNoConnections(self, direction, itemList):
@@ -234,6 +236,10 @@ class TrafficLight(Object):
         self.y=y
         self.group=None
         self.groupList=[]
+        self.length=0
+
+    def getLights(self, route):
+        return True
 
     def getSpecial(self):
         try:
@@ -263,6 +269,7 @@ class FourJunction(Object):
         Object.__init__(self, x, y, 60, 60, v.fourJunct, "4J")
         self.x=x
         self.y=y
+        self.length=10
         self.exits=["North", "South", "East", "West"]
         self.laneRules=[["Pink", "Blue"], ["Green", "Orange"]]
 
@@ -290,6 +297,7 @@ class TJunction(Object):
         Object.__init__(self, x, y, 60, 60, v.tJunct, "TJ")
         self.x=x
         self.y=y
+        self.length=10
         self.exits=["South", "East", "West"]
         self.laneRules=[["Pink", "Blue"], ["Pink", "Green"]]
 
@@ -336,7 +344,7 @@ class Turn(Object):
         Object.__init__(self, x, y, 60, 60, v.splitJunct, "TN")
         self.x=x
         self.y=y
-        self.length=None
+        self.length=100
         self.laneDistro=[1, 1]
     
     def defineGeometry(self):
@@ -460,7 +468,7 @@ class Car():
         self.waiting=False   
     
     def setTargetVelocity(self):
-        self.targetVelocity = currentRoad.speedLimit-3+(random.randint(0, 5))
+        self.targetVelocity = self.roadObject.speedLimit-3+(random.randint(0, 5))
 
     def tick(self, time, bigCarList): 
         carList=self.roadObject.getCars() 
@@ -520,10 +528,13 @@ class Car():
                     car.follower=self
                     self.following=car 
         
-        if self.route[self.index+1].typ == "TL": 
-            if self.route[self.index+1].getLights(self.route) != "Green":
-                if self.roadObject.length-self.distanceIntoRoadObject>20: 
-                    self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject))
+        try:
+            if self.route[self.roadIndex+1].typ == "TL": 
+                if self.route[self.roadIndex+1].getLights(self.route) != "Green":
+                    if self.roadObject.length-self.distanceIntoRoadObject>20: 
+                        self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject))
+        except:
+            pass
 
         self.time += time 
         if self.waiting: 
@@ -532,9 +543,10 @@ class Car():
         if self.distanceIntoRoadObject >= self.roadObject.length: 
             if self.roadIndex+1 < len(self.route): 
                 self.newRoad() 
-                if self.follower.route[roadIndex+1] != self.roadObject: 
-                    self.follower.following=False 
-                    self.follower=False 
+                if self.follower:
+                    if self.follower.route[roadIndex+1] != self.roadObject: 
+                        self.follower.following=False 
+                        self.follower=False 
             else: 
                 bigCarList = self.destroy(bigCarList) 
 
@@ -554,7 +566,7 @@ class Car():
     def newRoad(self): 
         self.roadObject.carList.remove(self) 
         self.roadIndex+=1 
-        self.roadObject=route[roadIndex] 
+        self.roadObject=self.route[self.roadIndex] 
         self.roadObject.carList.append(self)
         self.distanceIntoRoadObject=0 
         self.setTargetVelocity() 
@@ -567,9 +579,9 @@ class Car():
         timeTaken = self.time 
         timeWaiting = self.timeWaiting 
         lastRoad = self.route[-1] 
-        lengthOfRoute = 0 
+        lengthOfRoute = 0
         for obj in self.route: 
-            lengthOfRoute.append(obj.length) 
+            lengthOfRoute += obj.length 
     
         global bigCarData
         bigCarData.append(timeTaken, lastRoad, lengthOfRoute, timeWaiting) 

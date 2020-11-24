@@ -1,16 +1,17 @@
 import pygame, random, math
 import Draw as d
 import Pack as p
+import listenToHarry as classy
 
 pygame.display.init()
 pygame.font.init()
 
 WIDTH=1200
 HEIGHT=800
-FRAMERATE=60
+FRAMERATE=10
 SIMLENGTH=120
 BIGCARDATA=[]
-RATEOFCARS=1
+RATEOFCARS=0.5
 endList=[]
 
 w = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -19,25 +20,34 @@ c=pygame.time.Clock()
 
 roadList, time, groupList=p.unpack(1)
 
-if not time:
-	time=1
+time = 0.6
 
 def findRoute(entry, ext, itemList):
 	finalRoute=[] 
-	tempRoute=[]
-	tempRoute.append(entry) 
-	for obj in itemList
-	while tempRoute[-1] != ext:
+	
+	for obj in itemList:
+		if obj.id == entry:
+			entry = obj
+		elif obj.id == ext:
+			ext = obj
+	
+	finalRoute.append(entry) 
+	attempts=0
+	while finalRoute[-1] != ext and attempts<1000:
+		attempts+=1
 		tempConns=finalRoute[-1].getConns() 
 		chosenConn=random.randint(0, (len(tempConns)-1))
 		if tempConns[chosenConn] != finalRoute[-1]:
 			chosenConn=tempConns[chosenConn] 
-			finalRoute.append(chosenConn) 
+			for obj in itemList:
+				if obj.id == chosenConn:
+					finalRoute.append(obj)
+		else:
+			finalRoute = [entry] 
 	return finalRoute 
 
 def setEnds(obj, listy):
 	geometry=obj.getGeometry()
-	print(geometry)
 	for direction in geometry: 
 		if obj.hasNoConnections(direction, listy): 
 			obj.end.append(direction)
@@ -62,6 +72,7 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 	carList=[]
 
 	while simulationLength>totalTimePassed:
+		print("Time Count:", totalTimePassed)
 		clock.tick(frameRate)
 		x, y = pygame.mouse.get_pos()
 
@@ -80,17 +91,20 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 
 			if not temp: 
 				exitPoint=random.randint(0, (len(endList)-1)) 
+				print("Finding Route For Car")
 				route=findRoute(endList[entryPoint], endList[exitPoint], bigListy) 
 
-				newCar=Car(endList[entryPoint], route) 
-				endList[entryPoint].carList.append(newCar.id) 
+				newCar=classy.Car(endList[entryPoint], route) 
+				endList[entryPoint].carList.append(newCar) 
 				carList.append(newCar)
 
 		newCarList = carList 
 		for car in carList: 
+			print("Ticking Frame")
 			newCarList = car.tick(timePassed, newCarList) 
 		carList = newCarList
 
+		print("Drawing GUI")
 		d.drawGUI(win, x, y, bigListy)
 		
 		for event in pygame.event.get():
