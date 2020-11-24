@@ -485,6 +485,7 @@ class Car():
         #geometry=["north", "east", "south", "west"] 
         if self.roadObject.typ == "TJ" or self.roadObject.typ == "4J": 
             tempGroup = self.roadObject.group 
+            print(tempGroup.direction, self.route)
             if tempGroup:
                 for index in range(4): 
                     for obj in tempGroup.direction[index]: 

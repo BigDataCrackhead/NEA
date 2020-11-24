@@ -11,7 +11,7 @@ WIDTH=1200
 HEIGHT=800
 FRAMERATE=30
 SIMLENGTH=120
-RATEOFCARS=0.5
+RATEOFCARS=0.25
 endList=[]
 
 w = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -20,7 +20,7 @@ c=pygame.time.Clock()
 
 roadList, time, groupList=p.unpack(1)
 
-time = 0.6
+time = 0.5
 
 def findRoute(entry, ext, itemList):
 	finalRoute=[] 
@@ -76,7 +76,7 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 		clock.tick(frameRate)
 		x, y = pygame.mouse.get_pos()
 
-		newCars=(rate*time)+tempFraction
+		newCars=((rate*timePassed)+tempFraction)
 		tempFraction=newCars%1
 		newCars=math.trunc(newCars)
 
