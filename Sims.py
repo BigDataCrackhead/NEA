@@ -103,7 +103,7 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 			newCarList = car.tick(timePassed, newCarList) 
 		carList = newCarList
 
-		d.drawGUI(win, x, y, bigListy)
+		d.drawGUI(win, x, y, bigListy, carList)
 		
 		d.drawText(win, str(len(carList)), 700, 50, 20, v.BLUE)
 		for event in pygame.event.get():

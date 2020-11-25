@@ -236,7 +236,7 @@ class TrafficLight(Object):
         self.y=y
         self.group=None
         self.groupList=[]
-        self.length=0
+        self.length=1
 
     def getLights(self, route):
         return True
