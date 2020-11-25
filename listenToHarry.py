@@ -466,7 +466,8 @@ class Car():
         self.distanceIntoRoadObject=0 
         self.following=False 
         self.follower=False 
-        self.waiting=False   
+        self.waiting=False  
+        self.startTarget=False
     
     def setTargetVelocity(self):
         self.targetVelocity = self.roadObject.speedLimit-3+(random.randint(0, 5))
@@ -487,6 +488,14 @@ class Car():
             tempGroup = self.roadObject.group 
             print(tempGroup.direction, self.route)
             if tempGroup:
+                if self.roadIndex == 0:
+                    if not self.startTarget:
+                        tempEnd = self.roadObject.end
+                        tempIndex = random.randint(len(tempEnd))
+
+                        self.startTarget=tempEnd[tempIndex]
+                    comingFrom = self.startTarget
+                
                 for index in range(4): 
                     for obj in tempGroup.direction[index]: 
                         if obj in self.route: 
@@ -507,7 +516,7 @@ class Car():
                     for car in carList: 
                         if car.route[car.roadIndex-1] != self.route[self.roadIndex-1]: 
                             if not car.waiting: 
-                                if car.route[car.roadIndex+1] == self.route[roadIndex+1]: 
+                                if car.route[car.roadIndex+1] == self.route[self.roadIndex+1]: 
                                     if self.velocity != 0: 
                                         self.acceleration = self.velocity * -0.5 
                         

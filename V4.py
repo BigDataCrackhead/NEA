@@ -3,7 +3,7 @@ from _thread import *
 import listenToHarry as classy
 import Draw as d
 import Click as c
-import Sims as s
+#import Sims as s
 import Pack as p
 import Edits as e
 import Variables as v
@@ -140,7 +140,10 @@ def main(w, clock):
             if l.typ=="ET":
                 for i in itemList:
                     if i.checkWithin(tempX, tempY):
-                        itemList.remove(l)
+                        try:
+                            itemList.remove(l)
+                        except:
+                            pass
                         classy.Object.counterStorage.append(l.id)
                         if i!=l:
                             if i.typ=="TL":
