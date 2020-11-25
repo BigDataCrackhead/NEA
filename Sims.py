@@ -1,4 +1,4 @@
-import pygame, random, math
+import pygame, random, math, sys
 import Draw as d
 import Pack as p
 import Variables as v
@@ -20,7 +20,7 @@ c=pygame.time.Clock()
 
 roadList, time, groupList=p.unpack(1)
 
-time = 0.5
+time = 1
 
 def findRoute(entry, ext, itemList):
 	finalRoute=[] 

@@ -29,14 +29,22 @@ def drawGUI(w, x, y, l, c):
         else:
             if car.roadObject.y+(car.roadObject.height/2) == car.route[car.roadIndex-1].y+(car.roadObject.height/2):
                 if car.roadObject.x > car.route[car.roadIndex-1].x:
-                    pygame.draw.circle(w, v.GREEN, (int(car.roadObject.x+(car.distanceIntoRoadObject/car.roadObject.length)*car.roadObject.width), int(car.roadObject.y+(car.roadObject.height/2))), 3)
+                    tempX = int(car.roadObject.x+(car.distanceIntoRoadObject/car.roadObject.length)*car.roadObject.width)
+                    tempY = int(car.roadObject.y+(car.roadObject.height/2))
+                    pygame.draw.circle(w, v.GREEN, (tempX, tempY), 3)
                 else:
-                    pygame.draw.circle(w, v.GREEN, (int(car.roadObject.x+car.roadObject.width-(car.distanceIntoRoadObject/car.roadObject.length)*car.roadObject.width), int(car.roadObject.y+(car.roadObject.height/2))), 3)
+                    tempX = int(car.roadObject.x+car.roadObject.width-(car.distanceIntoRoadObject/car.roadObject.length)*car.roadObject.width)
+                    tempY = int(car.roadObject.y+(car.roadObject.height/2))
+                    pygame.draw.circle(w, v.GREEN, (tempX, tempY), 3)
             else:
                 if car.roadObject.y > car.route[car.roadIndex-1].y:
-                    pygame.draw.circle(w, v.GREEN, (int(car.roadObject.x(car.roadObject.width/2)), int(car.roadObject.y+(car.distanceIntoRoadObject/car.roadObject.length)*car.roadObject.width)), 3)
+                    tempX = int(car.roadObject.x+(car.roadObject.width/2))
+                    tempY = int(car.roadObject.y+(car.distanceIntoRoadObject/car.roadObject.length)*car.roadObject.width)
+                    pygame.draw.circle(w, v.GREEN, (tempX, tempY), 3)
                 else:
-                    pygame.draw.circle(w, v.GREEN, (int(car.roadObject.x(car.roadObject.width/2)), int(car.roadObject.y+car.roadObject.height-(car.distanceIntoRoadObject/car.roadObject.length)*car.roadObject.width)), 3)
+                    tempX = int(car.roadObject.x+(car.roadObject.width/2))
+                    tempY = int(car.roadObject.y+car.roadObject.height-(car.distanceIntoRoadObject/car.roadObject.length)*car.roadObject.width)
+                    pygame.draw.circle(w, v.GREEN, (tempX, tempY), 3)
 
 def groupEdit(w, g, l):
     pygame.display.set_caption('Group Edit: {}'.format(g.groupName))
