@@ -467,7 +467,7 @@ class Car():
         self.following=False 
         self.follower=False 
         self.waiting=False  
-        self.startTarget=False
+        self.startTarget=[[],[]]
     
     def setTargetVelocity(self):
         self.targetVelocity = self.roadObject.speedLimit-3+(random.randint(0, 5))
@@ -489,7 +489,7 @@ class Car():
             print(tempGroup.direction, self.route)
             if tempGroup:
                 if self.roadIndex == 0:
-                    if not self.startTarget:
+                    if self.startTarget == [[],[]]:
                         tempEnd = self.roadObject.end
                         tempIndex = random.randint(len(tempEnd))
 
@@ -554,11 +554,12 @@ class Car():
 
         if self.distanceIntoRoadObject >= self.roadObject.length: 
             if self.roadIndex+1 < len(self.route): 
-                self.newRoad() 
+                self.newRoad()
                 if self.follower:
-                    if self.follower.route[self.roadIndex+1] != self.roadObject: 
-                        self.follower.following=False 
-                        self.follower=False 
+                    if self.follower.roadIndex+1 < len(self.follower.route):
+                        if self.follower.route[self.follower.roadIndex+1] != self.roadObject: 
+                            self.follower.following=False 
+                            self.follower=False 
             else: 
                 bigCarList = self.destroy(bigCarList) 
 
