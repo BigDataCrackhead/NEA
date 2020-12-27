@@ -51,7 +51,38 @@ def drawGUI(w, x, y, l, c):
                         tempX = int(car.roadObject.x+(car.roadObject.width/2))
                         tempY = int(car.roadObject.y+car.roadObject.height-(car.distanceIntoRoadObject/car.roadObject.length)*car.roadObject.width)
             
-            pygame.draw.circle(w, v.PINK, (tempX, tempY), 5)
+        else:
+            proportionalDistanceIntoRoad=int(car.distanceIntoRoadObject/car.roadObject.length)
+
+            xValueOfCurrentRoad = car.roadObject.x
+            widthOfCurrentRoad = car.roadObject.width
+            xMidpointOfCurrentRoad = int(xValueOfCurrentRoad+(0.5*widthOfCurrentRoad))
+
+            yValueOfCurrentRoad = car.roadObject.y
+            heightOfCurrentRoad = car.roadObject.width
+            yMidpointOfCurrentRoad = int(yValueOfCurrentRoad+(0.5*heightOfCurrentRoad))
+
+            xValueOfPreviousRoad = car.route[car.roadIndex-1].x
+            widthOfPreviousRoad = car.route[car.roadIndex-1].width
+            xMidpointOfPreviousRoad = int(xValueOfPreviousRoad+(0.5*widthOfPreviousRoad))
+
+            yValueOfPreviousRoad = car.route[car.roadIndex-1].y
+            heightOfPreviousRoad = car.route[car.roadIndex-1].width
+            yMidpointOfPreviousRoad = int(yValueOfPreviousRoad+(0.5*heightOfPreviousRoad))
+
+            if xMidpointOfCurrentRoad-5 < xMidpointOfPreviousRoad and xMidpointOfCurrentRoad+5 < xMidpointOfPreviousRoad:
+                realDistanceIntoRoadObject = proportionalDistanceIntoRoad*car.roadObject.height
+
+                tempX = xMidpointOfCurrentRoad
+                tempY = yValueOfCurrentRoad + realDistanceIntoRoadObject
+
+            else:
+                realDistanceIntoRoadObject = proportionalDistanceIntoRoad*car.roadObject.width
+                
+                tempX = xValueOfCurrentRoad + realDistanceIntoRoadObject
+                tempY = yMidpointOfCurrentRoad
+
+        pygame.draw.circle(w, v.PINK, (tempX, tempY), 5)
 
 def groupEdit(w, g, l):
     pygame.display.set_caption('Group Edit: {}'.format(g.groupName))

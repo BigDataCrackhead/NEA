@@ -486,7 +486,6 @@ class Car():
         #geometry=["north", "east", "south", "west"] 
         if self.roadObject.typ == "TJ" or self.roadObject.typ == "4J": 
             tempGroup = self.roadObject.group 
-            print(tempGroup.direction, self.route)
             if tempGroup:
                 if self.roadIndex == 0:
                     if self.startTarget == [[],[]]:
@@ -494,6 +493,7 @@ class Car():
                         tempIndex = random.randint(len(tempEnd))
 
                         self.startTarget=tempEnd[tempIndex]
+                        
                     comingFrom = self.startTarget
                 
                 for index in range(4): 

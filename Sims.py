@@ -72,7 +72,8 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 	carList=[]
 
 	while simulationLength>totalTimePassed:
-		print("Time Count:", totalTimePassed)
+		print(str(totalTimePassed))
+		d.drawText(win, str(totalTimePassed), 1000, 200, 25, v.PINK)
 		clock.tick(frameRate)
 		x, y = pygame.mouse.get_pos()
 
