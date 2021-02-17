@@ -483,26 +483,27 @@ class Car():
             elif self.velocity > self.targetVelocity: 
                 self.acceleration = -0.5 
 
-        #geometry=["north", "east", "south", "west"] 
+        #geometry=["north", "east", "south", "west"]
         if self.roadObject.typ == "TJ" or self.roadObject.typ == "4J": 
             tempGroup = self.roadObject.group 
             if tempGroup:
-                if self.roadIndex == 0:
+                """ if self.roadIndex == 0:
                     if self.startTarget == [[],[]]:
                         tempEnd = self.roadObject.end
                         tempIndex = random.randint(len(tempEnd))
 
                         self.startTarget=tempEnd[tempIndex]
                         
-                    comingFrom = self.startTarget
+                    comingFrom = self.startTarget """
                 
-                for index in range(4): 
-                    for obj in tempGroup.direction[index]: 
-                        if obj in self.route: 
-                            if obj == self.route[self.roadIndex-1] or obj == self.route[self.roadIndex-2]: 
-                                comingFrom = index 
-                            else:
-                                goingTo = index 
+                if not (comingFrom in tempGroup.direction):
+                    for index in range(4):
+                        for obj in tempGroup.direction[index]:
+                            if obj in self.route:
+                                if obj == self.route[self.roadIndex-1] or obj == self.route[self.roadIndex-2]: 
+                                    comingFrom = index 
+                                else:
+                                    goingTo = index 
                 
                 if (comingFrom+1 == goingTo) or (comingFrom+1 == 4 and goingTo == 0): 
                     if self.velocity > 8:
@@ -538,7 +539,7 @@ class Car():
             for car in carList: 
                 if car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2) and car.follower == False and self.roadObject.typ != "TJ" and self.roadObject.typ != "4J" and car.route[car.roadIndex-1] == self.route[self.roadIndex-1]: 
                     car.follower=self
-                    self.following=car 
+                    self.following=car
         
         try:
             if self.route[self.roadIndex+1].typ == "TL": 

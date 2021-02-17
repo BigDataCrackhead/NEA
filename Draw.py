@@ -23,7 +23,14 @@ def drawGUI(w, x, y, l, c):
         obj.draw(w)
     
     for car in c:
-        if car.roadIndex == 0:
+        proportionalDistanceIntoRoad=float(car.distanceIntoRoadObject/car.roadObject.length)
+        if car.roadObject.typ!="TJ" or car.roadObject.typ!="4J": #If the car is at a junction
+            pass
+        else:
+            if car.roadIndex!=0:
+                print(car.roadObject.id)
+
+        """ if car.roadIndex == 0:
             if car.startTarget!=[[],[]]:
                 if type(car.startTarget[1]) == int:
                     tempX = int((car.startTarget[0][0]+car.startTarget[0][1])/2)
@@ -81,8 +88,8 @@ def drawGUI(w, x, y, l, c):
                 
                 tempX = xValueOfCurrentRoad + realDistanceIntoRoadObject
                 tempY = yMidpointOfCurrentRoad
-
-        pygame.draw.circle(w, v.PINK, (tempX, tempY), 5)
+ """
+        #pygame.draw.circle(w, v.PINK, (tempX, tempY), 5)
 
 def groupEdit(w, g, l):
     pygame.display.set_caption('Group Edit: {}'.format(g.groupName))
