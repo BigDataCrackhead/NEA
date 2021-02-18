@@ -496,48 +496,52 @@ class Car():
                         
                     comingFrom = self.startTarget """
                 
-                if not (comingFrom in tempGroup.direction):
-                    for index in range(4):
+                for index in range(4):
+                    try:
                         for obj in tempGroup.direction[index]:
                             if obj in self.route:
                                 if obj == self.route[self.roadIndex-1] or obj == self.route[self.roadIndex-2]: 
                                     comingFrom = index 
                                 else:
                                     goingTo = index 
+                    except:
+                        pass
+                
+                isTheCarTurningRight=True
                 
                 if (comingFrom+1 == goingTo) or (comingFrom+1 == 4 and goingTo == 0): 
                     if self.velocity > 8:
                         self.acceleration -= self.velocity * -0.5 
+                        isTheCarTurningRight=False
 
                 elif (comingFrom+2 == goingTo) or (comingFrom+2 == 4 and goingTo == 0) or (comingFrom+2 == 5 and goingTo == 1): 
                     if self.velocity > 8: 
                         self.acceleration -= self.velocity * -0.5 
+                        isTheCarTurningRight=False
 
-                else: 
-                    for car in carList: 
+                
+                for car in carList: 
+                    if isTheCarTurningRight:
                         if car.route[car.roadIndex-1] != self.route[self.roadIndex-1]: 
                             if not car.waiting: 
                                 if car.route[car.roadIndex+1] == self.route[self.roadIndex+1]: 
                                     if self.velocity != 0: 
                                         self.acceleration = self.velocity * -0.5 
-                        
-                        else: 
-                            if car.waiting: 
-                                if car.distanceIntoRoadObject > self.distanceIntoRoadObject:
-                                    if self.velocity != 0: 
-                                        self.acceleration = self.velocity * -0.5 
+                    
+                    else: 
+                        if car.waiting: 
+                            if car.distanceIntoRoadObject > self.distanceIntoRoadObject:
+                                if self.velocity != 0: 
+                                    self.acceleration = self.velocity * -0.5 
                             
 
 
         if self.following: 
-            if self.distanceIntoRoadObject > self.following.distanceIntoRoadObject: 
-                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject+self.roadObject.length - self.distanceIntoRoadObject + self.following.carLength)) 
-            else: 
-                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject+self.following.carLength)) 
-
+            self.acceleration = abs(self.velocity - self.following.velocity) * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject - self.following.carLength)) 
+         
         else:
             for car in carList: 
-                if car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2) and car.follower == False and self.roadObject.typ != "TJ" and self.roadObject.typ != "4J" and car.route[car.roadIndex-1] == self.route[self.roadIndex-1]: 
+                if car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+(self.velocity*2) and car.follower == False and self.roadObject.typ != "TJ" and self.roadObject.typ != "4J" and car.route[car.roadIndex-1] == self.route[self.roadIndex-1]: 
                     car.follower=self
                     self.following=car
         
@@ -545,7 +549,7 @@ class Car():
             if self.route[self.roadIndex+1].typ == "TL": 
                 if self.route[self.roadIndex+1].getLights(self.route) != "Green":
                     if self.roadObject.length-self.distanceIntoRoadObject>20: 
-                        self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject))
+                        self.acceleration = -0.01*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject))
         except:
             pass
 
@@ -561,11 +565,17 @@ class Car():
                         if self.follower.route[self.follower.roadIndex+1] != self.roadObject: 
                             self.follower.following=False 
                             self.follower=False 
+                    else:
+                        self.follower.following=False 
+                        self.follower=False
             else: 
+                if self.follower:
+                    self.follower.following=False 
+                self.follower=False
                 bigCarList = self.destroy(bigCarList) 
 
         newVelocity = self.velocity + (self.acceleration * time) 
-        if newVelocity <= 0: 
+        if newVelocity <= 0:
             newVelocity = 0 
         distanceTravelled = ((self.velocity+newVelocity)/2) * time 
         self.velocity = newVelocity 
