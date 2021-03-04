@@ -31,7 +31,11 @@ def findRoute(entry, ext, itemList):
 		elif obj.id == ext:
 			ext = obj
 	
-	finalRoute.append(entry) 
+	shortestPathnt=itemList
+	pathNotFound=True
+	while pathNotFound:
+
+	""" finalRoute.append(entry) 
 	attempts=0
 	while finalRoute[-1] != ext and attempts<1000:
 		attempts+=1
@@ -43,12 +47,12 @@ def findRoute(entry, ext, itemList):
 				if obj.id == chosenConn:
 					finalRoute.append(obj)
 		else:
-			finalRoute = [entry] 
+			finalRoute = [entry] """ 
 	return finalRoute 
 
 def setEnds(obj, listy):
 	geometry=obj.getGeometry()
-	for direction in geometry: 
+	for direction in geometry:
 		if obj.hasNoConnections(direction, listy): 
 			obj.end.append(direction)
 
@@ -82,16 +86,21 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 		newCars=math.trunc(newCars)
 
 		for newCarNeeded in range(newCars):
+			counter=0
 			temp=1
-			while temp:
+			while temp and counter<11:
 				temp=0
 				entryPoint=random.randint(0, len(endList)-1)
 				for car in carList:
 					if car.roadObject == endList[entryPoint] and car.distanceIntoRoadObject > car.carLength:
 						temp=1
+						counter+=1
 
-			if not temp: 
-				exitPoint=random.randint(0, (len(endList)-1)) 
+			if counter<11:
+				exitPoint=0
+
+				while exitPoint==entryPoint:
+					exitPoint=random.randint(0, (len(endList)-1))
 				route=findRoute(endList[entryPoint], endList[exitPoint], bigListy) 
 
 				newCar=classy.Car(endList[entryPoint], route) 
@@ -117,6 +126,5 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 
 def MRS(win):
 	pass
-
 
 GUI(w, c, roadList, float(time/FRAMERATE), groupList, FRAMERATE, SIMLENGTH, RATEOFCARS, endList)

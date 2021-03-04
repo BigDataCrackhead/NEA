@@ -33,14 +33,14 @@ class Object(object):
             for obj in itemList:
                 if obj.id == connID:
                     conn=obj
-            tempGeo=conn.getGeometry()
-            for side in tempGeo:
-                if type(side[0]) == int:
-                    if (side[0] == direction[0]) and (self.y+(self.height/2) == (direction[1][0]+direction[1][1])/2):
-                        temp=1
-                else:
-                    if (side[1] == direction[1]) and (self.x+(self.width/2) == (direction[0][0]+direction[0][1])/2):
-                        temp=1
+                    tempGeo=conn.getGeometry()
+                    for side in tempGeo:
+                        if type(side[0]) == int:
+                            if (side[0] == direction[0]) and (self.y+(self.height/2) == (direction[1][0]+direction[1][1])/2):
+                                temp=1
+                        else:
+                            if (side[1] == direction[1]) and (self.x+(self.width/2) == (direction[0][0]+direction[0][1])/2):
+                                temp=1
 
         if temp:
             return False
