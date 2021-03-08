@@ -1,5 +1,6 @@
 import pygame, math, random
 import Variables as v
+import Draw as d
 
 class Object(object):
     counter=0
@@ -130,6 +131,7 @@ class Object(object):
 
     def draw(self, win):
         win.blit(self.pygameImgID, (self.x, self.y))
+        d.drawText(win, str(self.id), self.x+self.width*0.5, self.y+self.height*0.5, 20, v.PINK)
 
     def checkWithin(self, x, y): 
         if self.x<x and (self.x+self.width)>x:
@@ -468,6 +470,10 @@ class Car():
         self.follower=False 
         self.waiting=False  
         self.startTarget=[[],[]]
+        tempList=[]
+        for x in range(3):
+            tempList.append(random.randint(0, 255))
+        self.colour=pygame.Color(tempList[0], tempList[1], tempList[2])
     
     def setTargetVelocity(self):
         self.targetVelocity = self.roadObject.speedLimit-3+(random.randint(0, 5))

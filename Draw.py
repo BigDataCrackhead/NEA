@@ -33,7 +33,7 @@ def drawGUI(w, x, y, l, c):
 
                     tempY=car.roadObject.y+(car.roadObject.height*0.5)
                     tempX=car.roadObject.x+howFarIntoRoad
-                    pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                    pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
                 else:
                     howFarIntoRoad = car.roadObject.height*proportionalDistanceIntoRoad
                     if car.roadObject.y>car.route[car.roadIndex-1].y:
@@ -41,7 +41,7 @@ def drawGUI(w, x, y, l, c):
 
                     tempY=car.roadObject.y+howFarIntoRoad
                     tempX=car.roadObject.x+(car.roadObject.width*0.5)
-                    pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                    pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
 
 
             else:
@@ -53,7 +53,7 @@ def drawGUI(w, x, y, l, c):
 
                         tempY=car.roadObject.y+(car.roadObject.height*0.5)
                         tempX=car.roadObject.x+howFarIntoRoad
-                        pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                        pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
                     else:
                         howFarIntoRoad = car.roadObject.height*proportionalDistanceIntoRoad
                         if not car.roadObject.y>car.route[car.roadIndex-1].y:
@@ -61,7 +61,7 @@ def drawGUI(w, x, y, l, c):
 
                         tempY=car.roadObject.y+howFarIntoRoad
                         tempX=car.roadObject.x+(car.roadObject.width*0.5)
-                        pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                        pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
                 else:
                     if car.roadObject.rotation%180==0:
                         howFarIntoRoad = car.roadObject.width*proportionalDistanceIntoRoad
@@ -70,7 +70,7 @@ def drawGUI(w, x, y, l, c):
 
                         tempY=car.roadObject.y+(car.roadObject.height*0.5)
                         tempX=car.roadObject.x+howFarIntoRoad
-                        pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                        pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
                     else:
                         howFarIntoRoad = car.roadObject.height*proportionalDistanceIntoRoad
                         if car.roadObject.y>car.route[car.roadIndex-1].y:
@@ -78,7 +78,7 @@ def drawGUI(w, x, y, l, c):
 
                         tempY=car.roadObject.y+howFarIntoRoad
                         tempX=car.roadObject.x+(car.roadObject.width*0.5)
-                        pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                        pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
 
 
 
@@ -91,7 +91,7 @@ def drawGUI(w, x, y, l, c):
 
                     tempY=car.roadObject.y+(car.roadObject.height*0.5)
                     tempX=car.roadObject.x+howFarIntoRoad
-                    pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                    pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
                 else:
                     howFarIntoRoad = car.roadObject.height*proportionalDistanceIntoRoad
                     if car.roadObject.y>car.route[car.roadIndex-1].y:
@@ -99,7 +99,7 @@ def drawGUI(w, x, y, l, c):
 
                     tempY=car.roadObject.y+howFarIntoRoad
                     tempX=car.roadObject.x+(car.roadObject.width*0.5)
-                    pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                    pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
 
 
             else:
@@ -110,7 +110,7 @@ def drawGUI(w, x, y, l, c):
 
                     tempY=car.roadObject.y+(car.roadObject.height*0.5)
                     tempX=car.roadObject.x+howFarIntoRoad
-                    pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                    pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
                 else:
                     howFarIntoRoad = car.roadObject.height*proportionalDistanceIntoRoad
                     if not car.roadObject.y>car.route[car.roadIndex-1].y:
@@ -118,7 +118,7 @@ def drawGUI(w, x, y, l, c):
 
                     tempY=car.roadObject.y+howFarIntoRoad
                     tempX=car.roadObject.x+(car.roadObject.width*0.5)
-                    pygame.draw.circle(w, v.PINK, (int(tempX), int(tempY)), 5)
+                    pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
 
         """ if car.roadIndex == 0:
             if car.startTarget!=[[],[]]:

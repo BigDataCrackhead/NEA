@@ -20,23 +20,33 @@ c=pygame.time.Clock()
 
 roadList, time, groupList=p.unpack(1)
 
-time = 1
+TIME = 5
 
 def findRoute(entry, ext, itemList):
-	finalRoute=[] 
 	
 	for obj in itemList:
 		if obj.id == entry:
 			entry = obj
+			
 		elif obj.id == ext:
 			ext = obj
-	
-	shortestPathnt=itemList
-	pathNotFound=True
-	while pathNotFound:
 
-	""" finalRoute.append(entry) 
+	finalRoute=[]
+
+	""" pathNotFound=True
+	while pathNotFound:
+		currentRoad=finalRoute[-1] """
+		
+	
+		
+	
+
+	
+
+
+	finalRoute.append(entry) 
 	attempts=0
+	print()
 	while finalRoute[-1] != ext and attempts<1000:
 		attempts+=1
 		tempConns=finalRoute[-1].getConns() 
@@ -45,9 +55,11 @@ def findRoute(entry, ext, itemList):
 			chosenConn=tempConns[chosenConn] 
 			for obj in itemList:
 				if obj.id == chosenConn:
+					print(obj.id, end=", ")
 					finalRoute.append(obj)
 		else:
-			finalRoute = [entry] """ 
+			finalRoute = [entry]
+	print()
 	return finalRoute 
 
 def setEnds(obj, listy):
@@ -57,6 +69,11 @@ def setEnds(obj, listy):
 			obj.end.append(direction)
 
 for obj in roadList: 
+	print()
+	print(str(obj.id), end=": ")
+	for conn in obj.conns:
+		print(str(conn.id), end=" ")
+
     if len(obj.conns) < 2 and (obj.typ == "TL" or obj.typ == "RD" or obj.typ == "TN"): 
         endList.append(obj) 
         setEnds(obj, roadList) 
@@ -68,6 +85,7 @@ for obj in roadList:
     elif len(obj.conns) < 4 and (obj.typ == "4J"): 
         endList.append(obj) 
         setEnds(obj, roadList)
+	print()
 
 def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength, rate, endList):
 	pygame.display.set_caption('GUI Simulation')
@@ -127,4 +145,4 @@ def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength
 def MRS(win):
 	pass
 
-GUI(w, c, roadList, float(time/FRAMERATE), groupList, FRAMERATE, SIMLENGTH, RATEOFCARS, endList)
+GUI(w, c, roadList, float(TIME/FRAMERATE), groupList, FRAMERATE, SIMLENGTH, RATEOFCARS, endList)
