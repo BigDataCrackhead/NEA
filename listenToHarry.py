@@ -131,7 +131,7 @@ class Object(object):
 
     def draw(self, win):
         win.blit(self.pygameImgID, (self.x, self.y))
-        d.drawText(win, str(self.id), self.x+self.width*0.5, self.y+self.height*0.5, 20, v.PINK)
+        """ d.drawText(win, str(self.id), self.x+self.width*0.5, self.y+self.height*0.5, 20, v.PINK) """
 
     def checkWithin(self, x, y): 
         if self.x<x and (self.x+self.width)>x:
@@ -517,12 +517,12 @@ class Car():
                 
                 if (comingFrom+1 == goingTo) or (comingFrom+1 == 4 and goingTo == 0): 
                     if self.velocity > 8:
-                        self.acceleration -= self.velocity * -0.5 
+                        self.acceleration = self.velocity * -0.5 
                         isTheCarTurningRight=False
 
                 elif (comingFrom+2 == goingTo) or (comingFrom+2 == 4 and goingTo == 0) or (comingFrom+2 == 5 and goingTo == 1): 
                     if self.velocity > 8: 
-                        self.acceleration -= self.velocity * -0.5 
+                        self.acceleration = self.velocity * -0.5 
                         isTheCarTurningRight=False
 
                 

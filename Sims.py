@@ -1,4 +1,4 @@
-import pygame, random, math, sys
+import pygame, random, math, sys, copy
 import Draw as d
 import Pack as p
 import Variables as v
@@ -20,13 +20,11 @@ c=pygame.time.Clock()
 
 roadList, time, groupList=p.unpack(1)
 
-TIME = 5
+TIME = 1
 
 def findRoute(entry, ext, itemList):
-	print(entry.id)
-	print(ext.id)
 	finalRoute=[]
-	unvisitedNodes=itemList
+	unvisitedNodes=itemList[:]
 	visitableNodes=[]
 	visitedNodes=[]
 	currentNode=entry
@@ -39,34 +37,49 @@ def findRoute(entry, ext, itemList):
 	howToGetThere[currentNode]=[currentNode]
 	howToGetThereNumbers[currentNode.id]=[currentNode.id]
 
-	for irrelevantNumber in itemList:
-		print("Current Node: "+str(currentNode.id))
+	while True:
+		lastNode=currentNode
 		for connection in currentNode.conns:
 			for obj in itemList:
 				if obj.id==connection:
 					connection=obj
-			visitableNodes.append(connection)
-			routeLength=distanceToNode[currentNode]+connection.length
+			if connection in visitedNodes:
+				pass
+			else:
+				visitableNodes.append(connection)
+			
+			routeLength=int(distanceToNode[currentNode]+connection.length)
 			if routeLength<distanceToNode[connection]:
 				distanceToNode[connection]=routeLength
-				tempList=howToGetThere[currentNode]
+				
+				tempList=list(howToGetThere[currentNode])
 				tempList.append(connection)
 				howToGetThere[connection]=tempList
-				tempList=howToGetThereNumbers[currentNode.id]
+
+				tempDict=copy.deepcopy(howToGetThereNumbers)
+				tempList=tempDict.get(currentNode.id)
 				tempList.append(connection.id)
 				howToGetThereNumbers[connection.id]=tempList
-			print()
-			print(howToGetThereNumbers)
-			print("========")
+		
 		unvisitedNodes.remove(currentNode)
+		try:
+			visitableNodes.remove(currentNode)
+		except:
+			pass
+
 		visitedNodes.append(currentNode)
-		currentNode=visitableNodes[0]
+		
+		for node in unvisitedNodes:
+			if node in visitableNodes:
+				currentNode=node
+		if currentNode==lastNode:
+			break
 
 	finalRoute=howToGetThere[ext]
 
 	print("==========")
-	print(finalRoute)
-	print("==========")	
+	print(howToGetThereNumbers[ext.id])
+	print("==========")
 	
 		
 	
