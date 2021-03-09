@@ -23,20 +23,50 @@ roadList, time, groupList=p.unpack(1)
 TIME = 5
 
 def findRoute(entry, ext, itemList):
-	
-	for obj in itemList:
-		if obj.id == entry:
-			entry = obj
-			
-		elif obj.id == ext:
-			ext = obj
-
+	print(entry.id)
+	print(ext.id)
 	finalRoute=[]
+	unvisitedNodes=itemList
+	visitableNodes=[]
+	visitedNodes=[]
+	currentNode=entry
+	howToGetThere={node: [] for node in itemList}
+	howToGetThereNumbers={node.id: [] for node in itemList}
 
-	""" pathNotFound=True
-	while pathNotFound:
-		currentRoad=finalRoute[-1] """
-		
+	distanceToNode={node: float("inf") for node in itemList}
+
+	distanceToNode[currentNode]=currentNode.length
+	howToGetThere[currentNode]=[currentNode]
+	howToGetThereNumbers[currentNode.id]=[currentNode.id]
+
+	for irrelevantNumber in itemList:
+		print("Current Node: "+str(currentNode.id))
+		for connection in currentNode.conns:
+			for obj in itemList:
+				if obj.id==connection:
+					connection=obj
+			visitableNodes.append(connection)
+			routeLength=distanceToNode[currentNode]+connection.length
+			if routeLength<distanceToNode[connection]:
+				distanceToNode[connection]=routeLength
+				tempList=howToGetThere[currentNode]
+				tempList.append(connection)
+				howToGetThere[connection]=tempList
+				tempList=howToGetThereNumbers[currentNode.id]
+				tempList.append(connection.id)
+				howToGetThereNumbers[connection.id]=tempList
+			print()
+			print(howToGetThereNumbers)
+			print("========")
+		unvisitedNodes.remove(currentNode)
+		visitedNodes.append(currentNode)
+		currentNode=visitableNodes[0]
+
+	finalRoute=howToGetThere[ext]
+
+	print("==========")
+	print(finalRoute)
+	print("==========")	
 	
 		
 	
@@ -44,26 +74,30 @@ def findRoute(entry, ext, itemList):
 	
 
 
-	finalRoute.append(entry) 
+	""" finalRoute.append(entry) 
 	attempts=0
 	print()
+	print(entry.id, end="")
 	while finalRoute[-1] != ext and attempts<1000:
 		attempts+=1
 		tempConns=finalRoute[-1].getConns() 
 		chosenConn=random.randint(0, (len(tempConns)-1))
-		if tempConns[chosenConn] != finalRoute[-1]:
-			chosenConn=tempConns[chosenConn] 
+
+		if tempConns[chosenConn] == finalRoute[-2].id:
+			finalRoute = [entry]
+		else:
+			chosenConn=tempConns[chosenConn]
 			for obj in itemList:
 				if obj.id == chosenConn:
 					print(obj.id, end=", ")
 					finalRoute.append(obj)
-		else:
-			finalRoute = [entry]
-	print()
+			
+	print() """
 	return finalRoute 
 
 def setEnds(obj, listy):
 	geometry=obj.getGeometry()
+	print(geometry)
 	for direction in geometry:
 		if obj.hasNoConnections(direction, listy): 
 			obj.end.append(direction)
@@ -72,20 +106,21 @@ for obj in roadList:
 	print()
 	print(str(obj.id), end=": ")
 	for conn in obj.conns:
-		print(str(conn.id), end=" ")
+		print(str(conn), end=" ")
 
-    if len(obj.conns) < 2 and (obj.typ == "TL" or obj.typ == "RD" or obj.typ == "TN"): 
-        endList.append(obj) 
-        setEnds(obj, roadList) 
+	if len(obj.conns) < 2 and (obj.typ == "TL" or obj.typ == "RD" or obj.typ == "TN"):
+		endList.append(obj)
+		setEnds(obj, roadList)
 
-    elif len(obj.conns) < 3 and (obj.typ == "TJ"): 
-        endList.append(obj) 
-        setEnds(obj, roadList) 
-    
-    elif len(obj.conns) < 4 and (obj.typ == "4J"): 
-        endList.append(obj) 
-        setEnds(obj, roadList)
+	elif len(obj.conns) < 3 and (obj.typ == "TJ"): 
+		endList.append(obj) 
+		setEnds(obj, roadList) 
+
+	elif len(obj.conns) < 4 and (obj.typ == "4J"): 
+		endList.append(obj) 
+		setEnds(obj, roadList)
 	print()
+	print("Endlist: "+ str(endList))
 
 def GUI(win, clock, bigListy, timePassed, groupList, frameRate, simulationLength, rate, endList):
 	pygame.display.set_caption('GUI Simulation')
