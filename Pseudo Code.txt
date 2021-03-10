@@ -32,12 +32,18 @@ CLASS Car: #The car class that contains all the cars added to the system
         carList=self.roadObject.getCars() #Defines the list of cars in the roadObject shared by itself
         IF self.velocity != 0: #If the car is moving makes sure the system does not think it is waiting
             self.waiting = False
+        ENDIF
 
         IF self.roadObject.typ != "4J" AND self.roadObject.typ != "TJ": #Checks if itself is any type of object other than t-junction and 4-way junction
             IF self.velocity < self.targetVelocity: #Checks if it is slower than it's target velocity
                 self.acceleration = 0.5 #Tells the car to speed up
+            ENDIF
             ELIF self.velocity > self.targetVelocity: #Checks if it is faster than it's target velocity
                 self.acceleration = -0.5 #Tells it to slow down
+            ENDIF
+        ENDIF
+        
+            
 
         geometry=["north", "east", "south", "west"] #Defines basic geometry variables 
         IF self.roadObject.typ = "TJ" OR self.roadObject.typ = "4J": #Checks if the road the object is on is a t-junction or a 4 way junction
