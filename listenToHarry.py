@@ -271,7 +271,7 @@ class FourJunction(Object):
         Object.__init__(self, x, y, 60, 60, v.fourJunct, "4J")
         self.x=x
         self.y=y
-        self.length=10
+        self.length=100
         self.exits=["North", "South", "East", "West"]
         self.laneRules=[["Pink", "Blue"], ["Green", "Orange"]]
 
@@ -299,7 +299,7 @@ class TJunction(Object):
         Object.__init__(self, x, y, 60, 60, v.tJunct, "TJ")
         self.x=x
         self.y=y
-        self.length=10
+        self.length=100
         self.exits=["South", "East", "West"]
         self.laneRules=[["Pink", "Blue"], ["Pink", "Green"]]
 

@@ -20,7 +20,7 @@ c=pygame.time.Clock()
 
 roadList, time, groupList=p.unpack(1)
 
-TIME = 5
+TIME = 1
 
 def findRoute(entry, ext, itemList):
 	finalRoute=[]
