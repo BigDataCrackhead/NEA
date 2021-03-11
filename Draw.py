@@ -45,11 +45,11 @@ def drawGUI(w, x, y, l, c):
 
 
             else:
-                if proportionalDistanceIntoRoad<0.5:
+
                     
 
 
-                """ if proportionalDistanceIntoRoad<0.5:
+                if proportionalDistanceIntoRoad<0.5:
                     if car.roadObject.rotation%180==0:
                         howFarIntoRoad = car.roadObject.width*proportionalDistanceIntoRoad
                         if not car.roadObject.x>car.route[car.roadIndex-1].x:
@@ -83,7 +83,7 @@ def drawGUI(w, x, y, l, c):
                         tempY=car.roadObject.y+howFarIntoRoad
                         tempX=car.roadObject.x+(car.roadObject.width*0.5)
                         pygame.draw.circle(w, car.colour, (int(tempX), int(tempY)), 5)
- """
+
 
 
         else:

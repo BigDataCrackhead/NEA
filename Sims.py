@@ -9,9 +9,9 @@ pygame.font.init()
 
 WIDTH=1200
 HEIGHT=800
-FRAMERATE=30
+FRAMERATE=60
 SIMLENGTH=120
-RATEOFCARS=0.25
+RATEOFCARS=1
 endList=[]
 
 w = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -20,7 +20,7 @@ c=pygame.time.Clock()
 
 roadList, time, groupList=p.unpack(1)
 
-TIME = 1
+TIME = 3
 
 def findRoute(entry, ext, itemList):
 	finalRoute=[]
