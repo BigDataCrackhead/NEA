@@ -1,216 +1,430 @@
-roadList=list of road and junction objects #So that you can navigate around the layout
-groupList=list of groups of road/junction and traffic light objects #So that you can keep all traffic lights coordinated and cars on junctions know what is happening
-endList=empty array #The list of all the roads that end on the edge of the layout
-rateOfCars=the number of cars per in simulation second #A constant value previously set by the user to indicate the number of new cars added to the system per second
-time=the number of in simulation seconds per real second #A constant set previously by the user such that the speed of a simulation can be controlled
-tempFraction=int(0) #A variable to keep track of left over cars that need to be added to the simulation
-carList=empty array #An array which will be used to keep track of all the cars added to the simulation
-frameRate=60 #A constant value to make sure the simulation stays running in sync. This is only changed depending on how much processing power the sim needs.
-simulationLength=3600 #A constant value set by the user that dictates how long the sim will run for
-GLOBAL bigCarData=[] #An emtpy array to store the data gained from the sim
+roadList=list of road and junction objects 
+#So that you can navigate around the layout
+groupList=list of groups of road/junction and traffic light objects 
+#So that you can keep all traffic lights coordinated and cars on junctions know what is happening
+endList=empty array 
+#The list of all the roads that end on the edge of the layout
+rateOfCars=the number of cars per in simulation second
+#A constant value previously set by the user to indicate the number of new cars added to the system per second
+time=the number of in simulation seconds per real second 
+#A constant set previously by the user such that the speed of a simulation can be controlled
+tempFraction=int(0) 
+#A variable to keep track of left over cars that need to be added to the simulation
+carList=empty array 
+#An array which will be used to keep track of all the cars added to the simulation
+frameRate=60 
+#A constant value to make sure the simulation stays running in sync. This is only changed depending on how much processing power the sim needs.
+simulationLength=3600 
+#A constant value set by the user that dictates how long the sim will run for
+GLOBAL bigCarData=[] 
+#An emtpy array to store the data gained from the sim
 
-CLASS Car: #The car class that contains all the cars added to the system
-    METHOD constructor (self, currentRoad, route): #The method run when the class initialises
-        self.time=0 #The value to track how long the car has been in the simulation
-        self.timeWaiting=0 #The value that tracks how long the car has been waiting
-        self.route=route #The route the car will take 
-        self.carLength=(RANDOMINT(0->8)*0.1)+1.2 #The assigned length of the car
-        self.acceleration=0 #The current acceleration of the car
-        self.velocity=currentRoad.speedLimit-3+RANDOMINT(0->6) #The current velocity of the car
-        self.targetVelocity=self.velocity #The velocity the car is aiming to acheive
-        self.roadObject=currentRoad #The road object that the car currently belongs to
-        self.roadIndex=0 #The index of the road object with relation to self.route
-        self.distanceIntoRoadObject=0 #The distance into the road object that the car currently is
-        self.following=False #Whether or not the car is following another car
-        self.follower=False #Whether or not the car has a follower
-        self.waiting=False #Whether or not the car is waiting
+CLASS Car: 
+#The car class that contains all the cars added to the system
+    METHOD constructor (currentCar, currentRoad, route): 
+#The method run when the class initialises
+        currentCar.time=0 
+#The value to track how long the car has been in the simulation
+        currentCar.timeWaiting=0 
+#The value that tracks how long the car has been waiting
+        currentCar.route=route 
+#The route the car will take 
+        currentCar.carLength=(RANDOMINT(0->8)*0.1)+1.2 
+#The assigned length of the car
+        currentCar.acceleration=0 
+#The current acceleration of the car
+        currentCar.velocity=currentRoad.speedLimit-3+RANDOMINT(0->6) 
+#The current velocity of the car
+        currentCar.targetVelocity=currentCar.velocity 
+#The velocity the car is aiming to acheive
+        currentCar.roadObject=currentRoad 
+#The road object that the car currently belongs to
+        currentCar.roadIndex=0 
+#The index of the road object with relation to currentCar.route
+        currentCar.distanceIntoRoadObject=0 
+#The distance into the road object that the car currently is
+        currentCar.following=False 
+#Whether or not the car is following another car
+        currentCar.follower=False
+#Whether or not the car has a follower
+        currentCar.waiting=False 
+#Whether or not the car is waiting
 
-    METHOD setTargetVelocity(self): #A method to set the target velocity for the car
-        self.targetVelocity = currentRoad.speedLimit-3+RANDOMINT(0->5) #Selects a target velocity based on a speed near to the actual speed limit
+    METHOD setTargetVelocity(currentCar): 
+#A method to set the target velocity for the car
+        currentCar.targetVelocity = currentRoad.speedLimit-3+RANDOMINT(0->5) 
+#Selects a target velocity based on a speed near to the actual speed limit
 
-    METHOD tick (self, time, bigCarList): #The method called every frame to keep cars moving correctly
-        carList=self.roadObject.getCars() #Defines the list of cars in the roadObject shared by itself
-        IF self.velocity != 0: #If the car is moving makes sure the system does not think it is waiting
-            self.waiting = False
-        ENDIF
+    METHOD tick (currentCar, time, bigCarList): 
+#The method called every frame to keep cars moving correctly
+        currentCar=currentCar.roadObject.getCars() 
+#Defines the list of cars in the roadObject shared by itself
+        IF currentCar.velocity != 0: 
+#If the car is moving makes sure the system does not think it is waiting
+            currentCar.waiting = False
+        END IF
 
-        IF self.roadObject.typ != "4J" AND self.roadObject.typ != "TJ": #Checks if itself is any type of object other than t-junction and 4-way junction
-            IF self.velocity < self.targetVelocity: #Checks if it is slower than it's target velocity
-                self.acceleration = 0.5 #Tells the car to speed up
-            ENDIF
-            ELIF self.velocity > self.targetVelocity: #Checks if it is faster than it's target velocity
-                self.acceleration = -0.5 #Tells it to slow down
-            ENDIF
-        ENDIF
+        IF currentCar.roadObject.typ != "4J" AND currentCar.roadObject.typ != "TJ": 
+#Checks if itself is any type of object other than t-junction and 4-way junction
+            IF currentCar.velocity < currentCar.targetVelocity: 
+#Checks if it is slower than it's target velocity
+                currentCar.acceleration = 0.5 
+#Tells the car to speed up
+
+            ELSE IF currentCar.velocity > currentCar.targetVelocity: 
+#Checks if it is faster than it's target velocity
+                currentCar.acceleration = -0.5 
+#Tells it to slow down
+            END IF
+        END IF
         
             
 
-        geometry=["north", "east", "south", "west"] #Defines basic geometry variables 
-        IF self.roadObject.typ = "TJ" OR self.roadObject.typ = "4J": #Checks if the road the object is on is a t-junction or a 4 way junction
-            tempGroup = self.roadObject.group #Creates a temporary group variable that holds the group of the junction
-            FOR (index=0; index<4; index+=1): #Loops through four times
-                FOR obj IN tempGroup.direction[index]: #Loops through the objects in the directions of the group
-                    IF obj IN self.route: #If one of these objects is in the route runs
-                        IF obj = self.route[self.roadIndex-1] OR obj = self.route[self.roadIndex-2]: #If this object is either the previous object the car was on or the object the car was on before that runs
-                            comingFrom = index #This means it must have been coming from this direction
+        geometry=["north", "east", "south", "west"] 
+#Defines basic geometry variables 
+        IF currentCar.roadObject.typ = "TJ" OR currentCar.roadObject.typ = "4J": 
+#Checks if the road the object is on is a t-junction or a 4 way junction
+            tempGroup = currentCar.roadObject.group 
+#Creates a temporary group variable that holds the group of the junction
+            FOR (index=0; index<4; index+=1): 
+#Loops through four times
+                FOR obj IN tempGroup.direction[index]: 
+#Loops through the objects in the directions of the group
+                    IF obj IN currentCar.route: 
+#If one of these objects is in the route runs
+                        IF obj = currentCar.route[currentCar.roadIndex-1] OR obj = currentCar.route[currentCar.roadIndex-2]: 
+#If this object is either the previous object the car was on or the object the car was on before that runs
+                            comingFrom = index 
+#This means it must have been coming from this direction
+                        
                         ELSE:
-                            goingTo = index #Otherwise it must be going to this direction
+                            goingTo = index 
+#Otherwise it must be going to this direction
+                        END IF
+                    END IF
+                END FOR
+            END FOR
             
-            IF (comingFrom+1 = goingTo) OR (comingFrom+1 = 4 AND goingTo = 0): #If the car is turning left
-                IF self.velocity > 8: #And the velocity is greater than 8
-                    self.acceleration -= self.velocity * -0.5 #Slow down
+            IF (comingFrom+1 = goingTo) OR (comingFrom+1 = 4 AND goingTo = 0): 
+#If the car is turning left
+                IF currentCar.velocity > 8: 
+#And the velocity is greater than 8
+                    currentCar.acceleration -= currentCar.velocity * -0.5 
+#Slow down
+                END IF
+            
 
-            ELIF (comingFrom+2 = goingTo) OR (comingFrom+2 = 4 AND goingTo = 0) OR (comingFrom+2 = 5 AND goingTo = 1): #If the car is going straight ahead
-                IF self.velocity > 8: #And the velocity is greater than 8
-                    self.acceleration -= self.velocity * -0.5 #Slow Down
+            ELSE IF (comingFrom+2 = goingTo) OR (comingFrom+2 = 4 AND goingTo = 0) OR (comingFrom+2 = 5 AND goingTo = 1): 
+#If the car is going straight ahead
+                IF currentCar.velocity > 8: 
+#And the velocity is greater than 8
+                    currentCar.acceleration -= currentCar.velocity * -0.5 
+#Slow Down
+                END IF
 
-            ELSE: #Otherwise
-                FOR car IN carList: #Loop through the car list
-                    IF car.route[car.roadIndex-1] != self.route[roadIndex-1]: #If the car came from anywhere but where you came from
-                        IF NOT car.waiting: #If that car is not waiting
-                            IF car.route[car.roadIndex+1] = self.route[roadIndex+1]: #If that car has the same destination
-                                IF self.velocity != 0: #And the velocity is not 0
-                                    self.acceleration = self.velocity * -0.5 #Slow down
+
+            ELSE: 
+#Otherwise
+                FOR car IN carList: 
+#Loop through the car list
+                    IF car.route[car.roadIndex-1] != currentCar.route[roadIndex-1]: 
+#If the car came from anywhere but where you came from
+                        IF NOT car.waiting: 
+#If that car is not waiting
+                            IF car.route[car.roadIndex+1] = currentCar.route[roadIndex+1]: 
+#If that car has the same destination
+                                IF currentCar.velocity != 0: 
+#And the velocity is not 0
+                                    currentCar.acceleration = currentCar.velocity * -0.5 
+#Slow down
+                                END IF
+                            END IF
+                        END IF
                     
-                    ELSE: #If the car came from the same direction
-                        IF car.waiting: #And the car is waiting
-                            IF car.distanceIntoRoadObject > self.distanceIntoRoadObject: #And it is ahead 
-                                IF self.velocity != 0: #And you are moving
-                                    self.acceleration = self.velocity * -0.5 #Slow down
+                    
+                    ELSE: 
+#If the car came from the same direction
+                        IF car.waiting: 
+#And the car is waiting
+                            IF car.distanceIntoRoadObject > currentCar.distanceIntoRoadObject: 
+#And it is ahead 
+                                IF currentCar.velocity != 0: 
+#And you are moving
+                                    currentCar.acceleration = currentCar.velocity * -0.5 
+#Slow down
+                                END IF
+                            END IF
+                        END IF
+                    END IF
+                END FOR
+            END IF
+        END IF
                             
 
 
-        IF self.following: #If you are following a car
-            IF self.distanceIntoRoadObject > self.following.distanceIntoRoadObject: #Runs if the car is in a new road object
-                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject+self.roadObject.length - self.distanceIntoRoadObject + self.following.carLength)) #Calculates what the new acceleration of the car should be
-            ELSE: #If both cars are on the same road object
-                self.acceleration = (self.following.velocity - self.velocity) * 5 * (1/(self.following.distanceIntoRoadObject - self.distanceIntoRoadObject+self.following.carLength)) #Calculates the new acceleration of the car
+        IF currentCar.following: 
+#If you are following a car
+            IF currentCar.distanceIntoRoadObject > currentCar.following.distanceIntoRoadObject: 
+#Runs if the car is in a new road object
+                currentCar.acceleration = (currentCar.following.velocity - currentCar.velocity) * 5 * (1/(currentCar.following.distanceIntoRoadObject+currentCar.roadObject.length - currentCar.distanceIntoRoadObject + currentCar.following.carLength)) 
+#Calculates what the new acceleration of the car should be
+            
+            ELSE: 
+#If both cars are on the same road object
+                currentCar.acceleration = (currentCar.following.velocity - currentCar.velocity) * 5 * (1/(currentCar.following.distanceIntoRoadObject - currentCar.distanceIntoRoadObject+currentCar.following.carLength)) 
+#Calculates the new acceleration of the car
+            END IF
+        END IF
 
-        ELSE: #If you are not following a car
-            FOR car IN carList: #Loops through the cars in the roadObject
-                IF car.distanceIntoRoadObject > self.distanceIntoRoadObject+car.carLength+1+(self.velocity*2) AND car.follower = False AND self.roadObject.typ != "TJ" AND self.roadObject.typ != "4J" AND car.route[car.roadIndex-1] = self.route[self.roadIndex-1]: #If the car is suitably close, you are not on a junction, both came from the same road and the car does not have a follower already
-                    car.follower=self #Set yourself as the car's follower
-                    self.following=car #Set your following to the car
+        ELSE: 
+#If you are not following a car
+            FOR car IN carList: 
+#Loops through the cars in the roadObject
+                IF car.distanceIntoRoadObject > currentCar.distanceIntoRoadObject+car.carLength+1+(currentCar.velocity*2) AND car.follower = False AND currentCar.roadObject.typ != "TJ" AND currentCar.roadObject.typ != "4J" AND car.route[car.roadIndex-1] = currentCar.route[currentCar.roadIndex-1]: 
+#If the car is suitably close, you are not on a junction, both came from the same road and the car does not have a follower already
+                    car.follower=currentCar 
+#Set yourself as the car's follower
+                    currentCar.following=car 
+#Set your following to the car
+                END IF
+            END FOR
+        END IF
         
-        IF self.route[self.index+1].typ = "TL": #If approaching a traffic light
-            IF self.route[self.index+1].getLights(self.route) != "Green": #And the traffic light is not green
-                IF self.roadObject.length-self.distanceIntoRoadObject>20: #And you are relatively close to the traffic light
-                    self.acceleration = -1*(self.velocity-(self.roadObject.length-self.distanceIntoRoadObject) #Slow down
+        IF currentCar.route[currentCar.index+1].typ = "TL": 
+#If approaching a traffic light
+            IF currentCar.route[currentCar.index+1].getLights(currentCar.route) != "Green": 
+#And the traffic light is not green
+                IF currentCar.roadObject.length-currentCar.distanceIntoRoadObject>20: 
+#And you are relatively close to the traffic light
+                    currentCar.acceleration = -1*(currentCar.velocity-(currentCar.roadObject.length-currentCar.distanceIntoRoadObject) 
+#Slow down
+                END IF
+            END IF
+        END IF
 
-        self.time += time #Tick time proportional to the value of one frame
-        IF self.waiting: #If car is waiting
-            self.timeWaiting += time #Add to the waiting timer
+        currentCar.time += time 
+#Tick time proportional to the value of one frame
+        IF currentCar.waiting: 
+#If car is waiting
+            currentCar.timeWaiting += time 
+#Add to the waiting timer
+        END IF
 
-        IF self.distanceIntoRoadObject >= self.roadObject.length: #If you have surpassed the length of the road
-            IF self.roadIndex+1 < LENGTH(self.route): #If car is moving to another road
-                self.newRoad() #Calls procedure for a new road
-                IF self.follower.route[roadIndex+1] != self.roadObject: #Checks whether your follower is also following you
-                    self.follower.following=False #Removes the follower's following attribute
-                    self.follower=False #Removes the follower attribute
-            ELSE: #If the car has finished it's route
-                bigCarList = self.destroy(bigCarList) #Destroys itself
+        IF currentCar.distanceIntoRoadObject >= currentCar.roadObject.length: 
+#If you have surpassed the length of the road
+            IF currentCar.roadIndex+1 < LENGTH(currentCar.route): 
+#If car is moving to another road
+                currentCar.newRoad() 
+#Calls procedure for a new road
+                IF currentCar.follower.route[roadIndex+1] != currentCar.roadObject: 
+#Checks whether your follower is also following you
+                    currentCar.follower.following=False 
+#Removes the follower's following attribute
+                    currentCar.follower=False 
+#Removes the follower attribute
+                END IF
+            
+            ELSE: 
+#If the car has finished it's route
+                bigCarList = currentCar.destroy(bigCarList) 
+#Destroys itself
+            END IF
+        END IF
 
-        newVelocity = self.velocity + (self.acceleration * time) #Sets the new velocity as an approximation of what the acceleration will have done to the car
-        IF newVelocity <= 0: #If the acceleration leads to negative velocity negate it
+        newVelocity = currentCar.velocity + (currentCar.acceleration * time) 
+#Sets the new velocity as an approximation of what the acceleration will have done to the car
+        IF newVelocity <= 0: 
+#If the acceleration leads to negative velocity negate it
             newVelocity = 0 
-        distanceTravelled = ((self.velocity+newVelocity)/2) * time #Integrating would take up wayyyyyy too much processing power so I did an approximation
-        self.velocity = newVelocity #Sets the new velocity
-        self.distanceIntoRoadObject += distanceTravelled #Moves the car forward
+        END IF
+        distanceTravelled = ((currentCar.velocity+newVelocity)/2) * time 
+#Integrating would take up wayyyyyy too much processing power so I did an approximation
+        currentCar.velocity = newVelocity 
+#Sets the new velocity
+        currentCar.distanceIntoRoadObject += distanceTravelled 
+#Moves the car forward
         
-        IF self.velocity <= 1: #To avoid cars taking infinitely long to slow down
-            self.velocity = 0 #Sets the velocity to zero if it is less than one
-            self.waiting = True #Waiting is set to True
+        IF currentCar.velocity <= 1: 
+#To avoid cars taking infinitely long to slow down
+            currentCar.velocity = 0 
+#Sets the velocity to zero if it is less than one
+            currentCar.waiting = True 
+#Waiting is set to True
+        END IF
 
-        RETURN bigCarList #Returns the updated car list
+        RETURN bigCarList 
+#Returns the updated car list
 
-    METHOD newRoad (self): #The method for moving a car along its route
-        self.roadObject.carList.REMOVE(self) #Remove the car from its previous road
-        self.roadIndex+=1 #Change it's index value
-        self.roadObject=route[roadIndex] #Assigns a new road object
-        self.roadObject.carList.APPEND(self) #Adds the car to that road object
-        self.distanceIntoRoadObject=0 #Sets the distance into the road object to 0
-        self.setTargetVelocity() #Sets the target velocity for the car to travel at
+    METHOD newRoad (currentCar): 
+#The method for moving a car along its route
+        currentCar.roadObject.carList.REMOVE(currentCar) 
+#Remove the car from its previous road
+        currentCar.roadIndex+=1 
+#Change it's index value
+        currentCar.roadObject=route[roadIndex] 
+#Assigns a new road object
+        currentCar.roadObject.carList.APPEND(currentCar) 
+#Adds the car to that road object
+        currentCar.distanceIntoRoadObject=0 
+#Sets the distance into the road object to 0
+        currentCar.setTargetVelocity() 
+#Sets the target velocity for the car to travel at
 
-    METHOD destroy (self, bigCarList): #The method that destroys the car
-        self.roadObject.carList.REMOVE(self) #Removes the car from its road object
-        bigCarList.REMOVE(self) #Removes the car from the overall car list
-        self.roadObject = NONE #Sets the cars road object to nonetype
+    METHOD destroy (currentCar, bigCarList): 
+#The method that destroys the car
+        currentCar.roadObject.carList.REMOVE(currentCar) 
+#Removes the car from its road object
+        bigCarList.REMOVE(currentCar) 
+#Removes the car from the overall car list
+        currentCar.roadObject = NONE 
+#Sets the cars road object to nonetype
 
-        timeTaken = self.time #Stores the time the car is active
-        timeWaiting = self.timeWaiting #Stores the time the car spent waiting
-        lastRoad = self.route[-1] #Stores where the car finished
-        lengthOfRoute = 0 #Sets a variable to store the length of the route
-        FOR obj IN self.route: #Loops through the roads the car has been on
-            lengthOfRoute.APPEND(obj.length) #Adds the length of each of the roads to the length of route variable
+        timeTaken = currentCar.time 
+#Stores the time the car is active
+        timeWaiting = currentCar.timeWaiting 
+#Stores the time the car spent waiting
+        lastRoad = currentCar.route[-1] 
+#Stores where the car finished
+        lengthOfRoute = 0 
+#Sets a variable to store the length of the route
+        FOR obj IN currentCar.route: 
+#Loops through the roads the car has been on
+            lengthOfRoute.APPEND(obj.length) 
+#Adds the length of each of the roads to the length of route variable
+        END FOR
     
-        GLOBAL bigCarData.APPEND(timeTaken, lastRoad, lengthOfRoute, timeWaiting) #Updates the global variable bigCarData with the data of the car
+        GLOBAL bigCarData.APPEND(timeTaken, lastRoad, lengthOfRoute, timeWaiting) 
+#Updates the global variable bigCarData with the data of the car
 
-        RETURN bigCarList #Returns the new car list
+        RETURN bigCarList 
+#Returns the new car list
     
-PROCEDURE wait (timePeriod): #The procedure that keeps the time of the system working
-    realTimePassed = getTimePassed() #Gets the time that has passed since the last calling of this procedure
+PROCEDURE wait (timePeriod): 
+#The procedure that keeps the time of the system working
+    realTimePassed = getTimePassed() 
+#Gets the time that has passed since the last calling of this procedure
 
-    IF realTimePassed > timePeriod: #If the system cannot keep up with the demand
-        ERROR "Clock Error" #It errors out
+    IF realTimePassed > timePeriod: 
+#If the system cannot keep up with the demand
+        ERROR "Clock Error" 
+#It errors out
+    END IF
 
-    HALT program FOR (timePeriod-realTimePassed) #Stops the program for the amount of time left before it needs to continue its loop
+    HALT program FOR (timePeriod-realTimePassed) 
+#Stops the program for the amount of time left before it needs to continue its loop
 
-FUNCTION findRoute (entry, exit): #A function to find a new route
-    finalRoute=[] #The empty array that the route will be added to
-    finalRoute.APPEND(entry) #The first part of the route will always be the start
-    WHILE finalRoute[-1] != exit: #While the last element of the array is not the end point
-        tempConns=finalRoute[-1].getConnections() #Find the connections of the last part of the road
-        chosenConn=RANDOMINT(0->(LENGTH(tempConns)-1)) #Picks a random index for the temporary connections
-        chosenConn=tempConns[chosenConn] #Selects the road associated with the index
-        finalRoute.APPEND(chosenConn) #Adds this road to the route
-    RETURN finalRoute #Returns the calculated route
+FUNCTION findRoute (entry, exit): 
+#A function to find a new route
+    finalRoute=[] 
+#The empty array that the route will be added to
+    finalRoute.APPEND(entry) 
+#The first part of the route will always be the start
+    WHILE finalRoute[-1] != exit: 
+#While the last element of the array is not the end point
+        tempConns=finalRoute[-1].getConnections() 
+#Find the connections of the last part of the road
+        chosenConn=RANDOMINT(0->(LENGTH(tempConns)-1)) 
+#Picks a random index for the temporary connections
+        chosenConn=tempConns[chosenConn] 
+#Selects the road associated with the index
+        finalRoute.APPEND(chosenConn) 
+#Adds this road to the route
+    END WHILE
+    RETURN finalRoute 
+#Returns the calculated route
 
 PROCEDURE setEnds (object):
-    FOR direction IN object.getGeometry: #Loops through north, east, south and west
-        IF direction==True AND object.hasNoConnections(direction): #Checks if the direction is possible but unattached
-            object.end.APPEND(direction) #Adds this direction to the objects' end list
+    FOR direction IN object.getGeometry: 
+#Loops through north, east, south and west
+        IF direction=True AND object.hasNoConnections(direction): 
+#Checks if the direction is possible but unattached
+            object.end.APPEND(direction) 
+#Adds this direction to the objects' end list
+        END IF
+    END FOR
 
-FOR object IN roadList: #Runs once for every road object in the sim
-    IF LENGTH(object.connections) < 2 AND (object.typ = "TL" OR object.typ = "RD" OR object.typ = "TN"): #Runs if the object is either a traffic 
+FOR object IN roadList: 
+#Runs once for every road object in the sim
+    IF LENGTH(object.connections) < 2 AND (object.typ = "TL" OR object.typ = "RD" OR object.typ = "TN"): 
+#Runs if the object is either a traffic 
 #light or a road and has only one connection 
-        endList.APPEND(object) #Adds this object to the list of objects with an end
-        setEnds(object) #Makes sure the object knows which directions it has free
+        endList.APPEND(object) 
+#Adds this object to the list of objects with an end
+        setEnds(object) 
+#Makes sure the object knows which directions it has free
 
-    ELIF LENGTH(object.connections) < 3 AND (object.typ = "TJ"): #Runs if the object is a t-junction and has 2 or less connections
-        endList.APPEND(object) #Adds this object to the list of objects with an end
-        setEnds(object) #Makes sure the object knows which directions it has free
+    ELSE IF LENGTH(object.connections) < 3 AND (object.typ = "TJ"): 
+#Runs if the object is a t-junction and has 2 or less connections
+        endList.APPEND(object) 
+#Adds this object to the list of objects with an end
+        setEnds(object) 
+#Makes sure the object knows which directions it has free
     
-    ELIF LENGTH(object.connections) < 4 AND (object.typ = "4J"): #Runs if the object is a 4 way junction and has 3 or less connections
-        endList.APPEND(object) #Adds this object to the list of objects with an end
-        setEnds(object) #Makes sure the object knows which directions it has free
+    ELSE IF LENGTH(object.connections) < 4 AND (object.typ = "4J"): 
+#Runs if the object is a 4 way junction and has 3 or less connections
+        endList.APPEND(object) 
+#Adds this object to the list of objects with an end
+        setEnds(object) 
+#Makes sure the object knows which directions it has free
+    END IF
+END FOR
 
-timePassed=time/frameRate #The amount of system time that will pass per frame
+timePassed=time/frameRate 
+#The amount of system time that will pass per frame
 
-WHILE simulationLength > totalTimePassed: #While the simulation hasn't been running for it's time limit sets to true
-    wait(1/frameRate) #Makes sure the simulation isn't running faster than the framerate it should be
+WHILE simulationLength > totalTimePassed: 
+#While the simulation hasn't been running for it's time limit sets to true
+    wait(1/frameRate) 
+#Makes sure the simulation isn't running faster than the framerate it should be
     
-    newCars=(rateOfCars*time)+tempFraction #Gets how many cars should be created this frame
-    tempFraction=newCars%1 #This usually won't be an integer so gets the fractional part and stores this for next frame
-    newCars=TRUNCATE(newCars) #After the fractional part is saved it turns it into the integer part
+    newCars=(rateOfCars*time)+tempFraction 
+#Gets how many cars should be created this frame
+    tempFraction=newCars%1 
+#This usually won't be an integer so gets the fractional part and stores this for next frame
+    newCars=TRUNCATE(newCars) 
+#After the fractional part is saved it turns it into the integer part
 
-    FOR (newCarNeeded=0; newCarNeeded<newCars; newCarNeeded+=1): #Loops the number of times a new car is needed
-        temp = 1 #Pushes into the while loop
-        WHILE temp: #Runs while the entry point is invalid
-            temp = 0 #Resets the temporary value so that finding the entry point is valid 
-            entryPoint=RANDOMINT(0->(LENGTH(endList)-1)) #Selects an index point for a random entrance to the sim
-            FOR car IN carList: #Loops through the current cars to see if they are obstructing new creations              
-                IF car.roadObject = endList[entryPoint] AND car.distanceIntoRoadObject > car.carLength: #Checks if car cannot be fit into the entry point
-                    temp = 1 #Makes sure you cannot escape the loop before you find a safe spot
+    FOR (newCarNeeded=0; newCarNeeded<newCars; newCarNeeded+=1): 
+#Loops the number of times a new car is needed
+        temp = 1 
+#Pushes into the while loop
+        WHILE temp: 
+#Runs while the entry point is invalid
+            temp = 0 
+#Resets the temporary value so that finding the entry point is valid 
+            entryPoint=RANDOMINT(0->(LENGTH(endList)-1)) 
+#Selects an index point for a random entrance to the sim
+            FOR car IN carList: 
+#Loops through the current cars to see if they are obstructing new creations              
+                IF car.roadObject = endList[entryPoint] AND car.distanceIntoRoadObject > car.carLength: 
+#Checks if car cannot be fit into the entry point
+                    temp = 1 
+#Makes sure you cannot escape the loop before you find a safe spot
+                END IF
+            END FOR
+        END WHILE
 
-        IF NOT temp: #If the entry point is clear 
-            exitPoint=RANDOMINT(0->(LENGTH(endList)-1)) #Picks an exit point
-            route=findRoute(endList[entryPoint], endList[exitPoint]) #Finds a route from the entry to the exit point
+        IF NOT temp: 
+#If the entry point is clear 
+            exitPoint=RANDOMINT(0->(LENGTH(endList)-1)) 
+#Picks an exit point
+            route=findRoute(endList[entryPoint], endList[exitPoint]) 
+#Finds a route from the entry to the exit point
 
-            newCar=Car(endList[entryPoint], route) #Creates a car with the route provided
-            endList[entryPoint].carList.APPEND(newCar.id) #Adds this car to the roadObject
-            carList.APPEND(newCar) #Adds this car to the total car array
+            newCar=Car(endList[entryPoint], route) 
+#Creates a car with the route provided
+            endList[entryPoint].carList.APPEND(newCar.id) 
+#Adds this car to the roadObject
+            carList.APPEND(newCar) 
+#Adds this car to the total car array
+        END IF
     
-    newCarList = carList #A temporary variable is instanced to hold the altered car list
-    FOR car IN carList: #Loops through the cars in the sim
-        newCarList = car.tick(timePassed, newCarList) #Makes the sim tick one frame forward
+    newCarList = carList 
+#A temporary variable is instanced to hold the altered car list
+    FOR car IN carList: 
+#Loops through the cars in the sim
+        newCarList = car.tick(timePassed, newCarList) 
+#Makes the sim tick one frame forward
+    END FOR
     carList = newCarList #Assigns the altered car list to the actual car list
+END WHILE
